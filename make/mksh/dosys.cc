@@ -73,6 +73,13 @@
 #	include <wchar.h>
 #endif
 
+/*
+ * Darwin/glibc portability: `environ' is not declared by <unistd.h> on
+ * Darwin (and only conditionally on glibc). Declare it here so callers
+ * of execve(..., environ) resolve at link time. -- Heirloom Darwin port.
+ */
+extern char **environ;
+
 #ifndef __sun
 #	undef wslen
 #	define wslen(x) wcslen(x)
@@ -809,7 +816,13 @@ sh_command2string(register String command, register String destination)
 	int			status;
 	Boolean			command_generated_output = false;
 
-	command->text.p = (int) nul_char;
+	/*
+	 * Darwin/LP64 port: original `command->text.p = (int) nul_char'
+	 * assigned int 0 to a wchar_t*. On 32-bit ILP32 the sizes matched
+	 * silently; on LP64 clang refuses the implicit narrowing. Intent
+	 * is a NULL pointer, so make that explicit. -- Heirloom Darwin port.
+	 */
+	command->text.p = NULL;
 	WCSTOMBS(mbs_buffer, command->buffer.start);
 	if ((fd = popen(mbs_buffer, "r")) == NULL) {
 		WCSTOMBS(mbs_buffer, command->buffer.start);

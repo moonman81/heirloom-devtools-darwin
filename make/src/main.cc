@@ -105,6 +105,13 @@
 #include <unistd.h>		/* execv(), unlink(), access() */
 #include <vroot/report.h>	/* report_dependency(), get_report_file() */
 
+/*
+ * Darwin/glibc portability: `environ' is not declared by <unistd.h> on
+ * Darwin, and only conditionally on glibc. Declare it here so
+ * read_environment() (below) can iterate over it. -- Heirloom Darwin port.
+ */
+extern char **environ;
+
 // From read2.cc
 extern	Name		normalize_name(register wchar_t *name_string, register int length);
 

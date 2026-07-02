@@ -50,13 +50,19 @@
 extern SIG_PF
 bsdsignal (int Signal, SIG_PF Handler)
 {
-  auto SIG_PF                   previous_handler;
+  /*
+   * Darwin/C++11+ port: 'auto' as a storage class was valid in K&R C
+   * and C++03 (default for locals, so redundant). In C++11+ 'auto'
+   * means type-deduced, so 'auto SIG_PF x' fails to parse. Removed the
+   * (redundant) storage-class 'auto' keywords. -- Heirloom Darwin port.
+   */
+  SIG_PF                        previous_handler;
 #ifdef SUN5_0
 #ifdef sun
   previous_handler = sigset (Signal, Handler);
 #else
-  auto struct sigaction         new_action;
-  auto struct sigaction         old_action;
+  struct sigaction              new_action;
+  struct sigaction              old_action;
 
   new_action.sa_flags = SA_SIGINFO;
   new_action.sa_handler = (void (*) ()) Handler;
