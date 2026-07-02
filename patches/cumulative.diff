@@ -1,0 +1,191 @@
+diff --git a/make/bsd/bsd.cc b/make/bsd/bsd.cc
+index 8900335..7462fe3 100644
+--- a/make/bsd/bsd.cc
++++ b/make/bsd/bsd.cc
+@@ -50,13 +50,19 @@
+ extern SIG_PF
+ bsdsignal (int Signal, SIG_PF Handler)
+ {
+-  auto SIG_PF                   previous_handler;
++  /*
++   * Darwin/C++11+ port: 'auto' as a storage class was valid in K&R C
++   * and C++03 (default for locals, so redundant). In C++11+ 'auto'
++   * means type-deduced, so 'auto SIG_PF x' fails to parse. Removed the
++   * (redundant) storage-class 'auto' keywords. -- Heirloom Darwin port.
++   */
++  SIG_PF                        previous_handler;
+ #ifdef SUN5_0
+ #ifdef sun
+   previous_handler = sigset (Signal, Handler);
+ #else
+-  auto struct sigaction         new_action;
+-  auto struct sigaction         old_action;
++  struct sigaction              new_action;
++  struct sigaction              old_action;
+ 
+   new_action.sa_flags = SA_SIGINFO;
+   new_action.sa_handler = (void (*) ()) Handler;
+diff --git a/make/mksh/dosys.cc b/make/mksh/dosys.cc
+index 7422fb9..8379e21 100644
+--- a/make/mksh/dosys.cc
++++ b/make/mksh/dosys.cc
+@@ -73,6 +73,13 @@
+ #	include <wchar.h>
+ #endif
+ 
++/*
++ * Darwin/glibc portability: `environ' is not declared by <unistd.h> on
++ * Darwin (and only conditionally on glibc). Declare it here so callers
++ * of execve(..., environ) resolve at link time. -- Heirloom Darwin port.
++ */
++extern char **environ;
++
+ #ifndef __sun
+ #	undef wslen
+ #	define wslen(x) wcslen(x)
+@@ -809,7 +816,13 @@ sh_command2string(register String command, register String destination)
+ 	int			status;
+ 	Boolean			command_generated_output = false;
+ 
+-	command->text.p = (int) nul_char;
++	/*
++	 * Darwin/LP64 port: original `command->text.p = (int) nul_char'
++	 * assigned int 0 to a wchar_t*. On 32-bit ILP32 the sizes matched
++	 * silently; on LP64 clang refuses the implicit narrowing. Intent
++	 * is a NULL pointer, so make that explicit. -- Heirloom Darwin port.
++	 */
++	command->text.p = NULL;
+ 	WCSTOMBS(mbs_buffer, command->buffer.start);
+ 	if ((fd = popen(mbs_buffer, "r")) == NULL) {
+ 		WCSTOMBS(mbs_buffer, command->buffer.start);
+diff --git a/make/src/main.cc b/make/src/main.cc
+index ef4188d..6a6aaba 100644
+--- a/make/src/main.cc
++++ b/make/src/main.cc
+@@ -105,6 +105,13 @@
+ #include <unistd.h>		/* execv(), unlink(), access() */
+ #include <vroot/report.h>	/* report_dependency(), get_report_file() */
+ 
++/*
++ * Darwin/glibc portability: `environ' is not declared by <unistd.h> on
++ * Darwin, and only conditionally on glibc. Declare it here so
++ * read_environment() (below) can iterate over it. -- Heirloom Darwin port.
++ */
++extern char **environ;
++
+ // From read2.cc
+ extern	Name		normalize_name(register wchar_t *name_string, register int length);
+ 
+diff --git a/make/vroot/lock.cc b/make/vroot/lock.cc
+index 1d6239b..daa6454 100644
+--- a/make/vroot/lock.cc
++++ b/make/vroot/lock.cc
+@@ -53,7 +53,13 @@ extern	char		*sys_errlist[];
+ extern	int		sys_nerr;
+ #endif
+ 
+-static	void		file_lock_error(char *msg, char *file, char *str, int arg1, int arg2);
++/*
++ * Darwin/LP64 port: original signature declared arg1/arg2 as int, but
++ * all callers pass char* (matching '%s' in the format string) and the
++ * sibling makestate/lock.c already uses char*. Realigned prototype to
++ * char* — pointer-safe on ILP32 and LP64 alike. -- Heirloom Darwin port.
++ */
++static	void		file_lock_error(char *msg, char *file, char *str, char *arg1, char *arg2);
+ 
+ #define BLOCK_INTERUPTS sigfillset(&newset) ; \
+ 	sigprocmask(SIG_SETMASK, &newset, &oldset)
+@@ -122,8 +128,15 @@ file_lock(char *name, char *lockname, int *file_locked, int timeout)
+ 		UNBLOCK_INTERUPTS;
+ 
+ 		if (errno != EEXIST) {
++			/*
++			 * Darwin/LP64 port: original code cast char* to int
++			 * before printing via %s. Silent on 32-bit ILP32,
++			 * pointer-truncation UB on LP64. Format is %s, args
++			 * are already char*, so the casts were harmful noise.
++			 * -- Heirloom Darwin port.
++			 */
+ 			file_lock_error(msg, name, NOCATGETS("symlink(%s, %s)"),
+-			    (int) name, (int) lockname);
++			    name, lockname);
+ 			fprintf(stderr, "%s", msg);
+ 			return errno;
+ 		}
+@@ -171,7 +184,7 @@ file_lock(char *name, char *lockname, int *file_locked, int timeout)
+  * Format a message telling why the lock could not be created.
+  */
+ static	void
+-file_lock_error(char *msg, char *file, char *str, int arg1, int arg2)
++file_lock_error(char *msg, char *file, char *str, char *arg1, char *arg2)
+ {
+ 	int		len;
+ 
+diff --git a/mk.config b/mk.config
+index 5cc4665..2b66e3a 100644
+--- a/mk.config
++++ b/mk.config
+@@ -17,12 +17,12 @@ POSIX_SHELL = /bin/sh
+ #
+ # A BSD-compatible install command.
+ #
+-INSTALL=/usr/ucb/install
++INSTALL=/usr/bin/install
+ 
+ #
+ # Prefix.
+ #
+-PREFIX=/usr/ccs
++PREFIX=/opt/heirloom/ccs
+ 
+ #
+ # Where to place binaries.
+@@ -32,7 +32,7 @@ BINDIR=$(PREFIX)/bin
+ #
+ # Where to place additional binaries that aim at POSIX conformance.
+ #
+-SUSBIN=/usr/5bin/posix
++SUSBIN=/opt/heirloom/bin/posix
+ 
+ #
+ # Where to place libraries.
+@@ -42,7 +42,7 @@ LIBDIR=$(PREFIX)/lib
+ #
+ # Where to place manual pages.
+ #
+-MANDIR=$(PREFIX)/share/man
++MANDIR=/opt/heirloom/share/man/5man
+ 
+ #
+ # Binaries are stripped with this command after installation.
+@@ -57,8 +57,8 @@ CXX = c++
+ #
+ # Compiler flags.
+ #
+-CFLAGS=-O
+-CXXFLAGS=-O
++CFLAGS=-O -g
++CXXFLAGS=-O -g
+ 
+ #
+ # C preprocessor flags.
+@@ -66,7 +66,7 @@ CXXFLAGS=-O
+ # Use -D_GNU_SOURCE for Linux with GNU libc.
+ # Use -D_INCLUDE__STDC_A1_SOURCE for HP-UX.
+ #
+-CPPFLAGS=-D_GNU_SOURCE
++CPPFLAGS=-D_DARWIN_C_SOURCE
+ 
+ #
+ # Warning flags for the compiler.
+@@ -92,8 +92,8 @@ LIBS=
+ # Run ranlib if it is in the current path. This should take care
+ # of most situations. On Mac OS X, you need to uncomment "ranlib -c".
+ #
+-RANLIB=(hash ranlib) >/dev/null 2>&1 || exit 0; ranlib
+-#RANLIB=ranlib -c
++#RANLIB=(hash ranlib) >/dev/null 2>&1 || exit 0; ranlib
++RANLIB=ranlib -c
+ 
+ #
+ # Use the generated yacc to process .y files. You can set this to another
