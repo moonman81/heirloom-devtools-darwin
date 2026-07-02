@@ -1,0 +1,3 @@
+# Companion Heirloom packages required BEFORE devtools.
+# Format: pkg-name:path-to-check-for-existence
+sh:/opt/heirloom/bin/sh

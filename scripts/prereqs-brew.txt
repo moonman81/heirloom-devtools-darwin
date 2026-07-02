@@ -1,0 +1,2 @@
+# Homebrew formulae required to build heirloom-devtools.
+# Baseline: Xcode CLT (cc, make, yacc, lex). Nothing extra needed.
