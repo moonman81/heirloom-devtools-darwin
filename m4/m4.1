@@ -1,0 +1,107 @@
+.\" m4.1 - Heirloom Darwin port synthesised man page
+.TH M4 1 "2026-07-03" "Heirloom Darwin port" "User Commands"
+.SH NAME
+m4 \- macro processor
+.SH SYNOPSIS
+.B m4
+.RI "[\-e] [\-s] [\-B" int "] [\-H" int "] [\-S" int "] [\-T" int "]"
+.br
+   [\-D
+.IR name [= value ]]...
+[\-U
+.IR name ]...
+[
+.I file
+...]
+.SH DESCRIPTION
+.B m4
+is a general-purpose macro processor. It reads its input, expands
+built-in and user-defined macros, and writes the result to standard
+output.  Input comes from the concatenation of the named
+.I file
+arguments; if no
+.I file
+is given, or if a file argument is the single character \-, then
+standard input is read.
+.PP
+Built-in macros include
+.BR define ,
+.BR undefine ,
+.BR ifdef ,
+.BR ifelse ,
+.BR include ,
+.BR sinclude ,
+.BR changequote ,
+.BR changecom ,
+.BR divert ,
+.BR undivert ,
+.BR divnum ,
+.BR dnl ,
+.BR eval ,
+.BR len ,
+.BR index ,
+.BR substr ,
+.BR translit ,
+.BR incr ,
+.BR decr ,
+.BR syscmd ,
+.BR sysval ,
+.BR maketemp ,
+.BR errprint ,
+.BR dumpdef ,
+.BR shift ,
+.BR pushdef ,
+.BR popdef ,
+.BR traceon ,
+.BR traceoff ,
+.BR m4wrap .
+.SH OPTIONS
+.TP
+.B \-e
+Operate interactively: unbuffer output and ignore interrupts.
+.TP
+.B \-s
+Emit line-synchronisation output for the C preprocessor.
+.TP
+.BI \-B " int"
+Change size of the push-back and argument-collection buffers.
+.TP
+.BI \-D " name" [= value ]
+Define
+.I name
+to
+.IR value ,
+or empty in the absence of
+.IR value .
+.TP
+.BI \-H " int"
+Change size of the symbol-table hash array.
+.TP
+.BI \-S " int"
+Change size of the call stack.
+.TP
+.BI \-T " int"
+Change size of the token buffer.
+.TP
+.BI \-U " name"
+Undefine
+.IR name .
+.SH HEIRLOOM DARWIN PORT
+This binary is the Heirloom port of SVR4
+.BR m4 (1).
+It supports the shared modality flags added by the port
+(\fB\-\-help\fR, \fB\-\-version\fR, \fB\-\-variants\fR,
+\fB\-\-describe\-modality\fR, \fB\-\-variant=\fIname\fR,
+\fB\-\-dialect=\fIname\fR) as documented in
+.BR heirloom-modality (7).
+.SH SEE ALSO
+.BR cc (1),
+.BR heirloom-modality (7).
+.SH HISTORY
+.B m4
+was introduced by Kernighan and Ritchie in 1977 as a companion to
+.BR nroff (1)
+and as a stage for portable C preprocessor macros. See the
+package's
+.B BIBLIOGRAPHY.md
+for citations.
