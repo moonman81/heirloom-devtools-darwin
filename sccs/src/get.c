@@ -43,6 +43,7 @@
 #include	<sys/utsname.h>
 #include	<ccstypes.h>
 #include	<limits.h>
+#include "heirloom_flags.h"
 
 #define	DATELEN	12
 
@@ -95,9 +96,10 @@ static void	prfx(register struct packet *);
 static void	wrtpfile(register struct packet *, char *, char *);
 static int	cmrinsert(void);
 
-int 
+int
 main(int argc, register char *argv[])
 {
+	heirloom_flags(argc, argv, "get", HF_VERBOSE_TAKEN);
 	register int i;
 	register char *p;
 	int  c;
@@ -150,7 +152,7 @@ main(int argc, register char *argv[])
 			p = optarg;
 			switch (c) {
     			case CMFFLAG:
-				/* Concatenate the rest of this argument with 
+				/* Concatenate the rest of this argument with
 				 * the existing CMR list. */
 				if (p) {
 				   while (*p) {
@@ -199,7 +201,7 @@ main(int argc, register char *argv[])
 				} else {
 				   no_arg = 1;
 				   lfile = NULL;
-				}	
+				}
 				break;
 			case 'i':
 				if (*p == 0) continue;
@@ -231,7 +233,7 @@ main(int argc, register char *argv[])
 			case 'd':
 				if (p) {
 				   sprintf(SccsError,
-				     "value after %c arg (cm8)", 
+				     "value after %c arg (cm8)",
 				     c);
 				   fatal(SccsError);
 				}
@@ -250,7 +252,7 @@ main(int argc, register char *argv[])
 				break;
 			default:
 			   fatal("unknown key letter (cm1)");
-			
+
 			}
 
 			/* The following is necessary in case the */
@@ -291,7 +293,7 @@ main(int argc, register char *argv[])
 
 extern char *Sflags[];
 
-static void 
+static void
 get(char *file)
 {
 	register char *p;
@@ -431,10 +433,10 @@ get(char *file)
 				gpkt.p_gout = stdout;
 			} else {
 				if (exists(gpkt.p_file) && (S_IEXEC & Statbuf.st_mode)) {
-					gpkt.p_gout = xfcreat(Gfile,HADK ? 
+					gpkt.p_gout = xfcreat(Gfile,HADK ?
 						((mode_t)0755) : ((mode_t)0555));
 				} else {
-					gpkt.p_gout = xfcreat(Gfile,HADK ? 
+					gpkt.p_gout = xfcreat(Gfile,HADK ?
 						((mode_t)0644) : ((mode_t)0444));
 				}
 			}
@@ -470,13 +472,13 @@ get(char *file)
 				xmsg(gfile, NOGETTEXT("get"));
 		}
 		if (gpkt.p_verbose) {
-#ifdef XPG4		
+#ifdef XPG4
 		   fprintf(gpkt.p_stdout, NOGETTEXT("%d lines\n"), gpkt.p_glnno);
 #else
 		   if (HADD == 0)
 		      fprintf(gpkt.p_stdout,"%d lines\n",gpkt.p_glnno);
 #endif
-		}		
+		}
 		if (!Did_id && !HADK && !HADQ) {
 		   if (Sflags[IDFLAG - 'a']) {
 		      if (!(*Sflags[IDFLAG - 'a'])) {
@@ -509,7 +511,7 @@ unlock:
 	ffreeall();
 }
 
-void 
+void
 enter(struct packet *pkt, int ch, int n, struct sid *sidp)
 {
 	char str[32];
@@ -543,7 +545,7 @@ enter(struct packet *pkt, int ch, int n, struct sid *sidp)
 	}
 }
 
-static void 
+static void
 gen_lfile(register struct packet *pkt)
 {
 	char *n;
@@ -585,7 +587,7 @@ gen_lfile(register struct packet *pkt)
 				}
 			}
 			switch (reason & (INCL | EXCL | CUTOFF)) {
-	
+
 			case INCL:
 				OUTPUTC('I');
 				break;
@@ -621,7 +623,7 @@ gen_lfile(register struct packet *pkt)
 				case COMMENTS:
 					if (dt.d_type == 'D') {
 					   if (fprintf(out,"\t%s",&line[3]) == EOF)
-					      xmsg(outname, 
+					      xmsg(outname,
 					         NOGETTEXT("gen_lfile"));
 					}
 					continue;
@@ -659,7 +661,7 @@ static char	Pname[BUFSIZ];
 static char	Dir[BUFSIZ];
 static char	*Qsect;
 
-static void 
+static void
 idsetup(register struct packet *pkt)
 {
 	extern time_t Timenow;
@@ -676,7 +678,7 @@ idsetup(register struct packet *pkt)
 	if (n) {
 		date_ba(&pkt->p_idel[n].i_datetime,Chgdate);
 	} else {
-#ifdef XPG4		
+#ifdef XPG4
 		if (exists(gfile))
 			unlink(gfile);
 		xfcreat(gfile, HADK ? ((mode_t)0644) : ((mode_t)0444));
@@ -695,7 +697,7 @@ idsetup(register struct packet *pkt)
 		Qsect = Null;
 }
 
-static void 
+static void
 makgdate(register char *old, register char *new)
 {
 	if ((*new = old[3]) != '0')
@@ -729,7 +731,7 @@ idsubst(register struct packet *pkt, char line[])
 	extern char *Type;
 	extern char *Sflags[];
 	char *expand_ID;
-		
+
 	cnt_ID_lines++;
 	if (HADK) {
 		if (!expand_IDs)
@@ -907,7 +909,7 @@ _trans(register char *tp, register char *str, register char *rest)
 	return(tp-1);
 }
 
-static void 
+static void
 prfx(register struct packet *pkt)
 {
 	char str[32];
@@ -922,7 +924,7 @@ prfx(register struct packet *pkt)
 	}
 }
 
-void 
+void
 clean_up(void)
 {
 	/*
@@ -949,7 +951,7 @@ clean_up(void)
 
 static	char	warn[] = NOGETTEXT("WARNING: being edited: `%s' (ge18)\n");
 
-static void 
+static void
 wrtpfile(register struct packet *pkt, char *inc, char *exc)
 {
 	char line[64], str1[32], str2[32];
@@ -1046,7 +1048,7 @@ fredck(struct packet *pkt)
 
 /* cmrinsert -- insert CMR numbers in the p.file. */
 
-static int 
+static int
 cmrinsert(void)
 {
 	extern char *Sflags[];

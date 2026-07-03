@@ -39,7 +39,7 @@
  *
  *	make program main routine plus some helper routines
  */
- 
+
 /*
  * Included files
  */
@@ -248,9 +248,14 @@ extern int	POSIX;
  *		trace_reader		Set to reflect tracing status
  *		working_on_targets	Set when building user targets
  */
+extern "C" {
+#include "heirloom_flags.h"
+}
+
 int
 main(int argc, char *argv[])
 {
+	heirloom_flags(argc, argv, "make", HF_VERBOSE_TAKEN);
 	/*
 	 * cp is a -> to the value of the MAKEFLAGS env var,
 	 * which has to be regular chars.
@@ -335,7 +340,7 @@ main(int argc, char *argv[])
 #if defined(TEAMWARE_MAKE_CMN) || defined(MAKETOOL)
 /*
  * I put libmksdmsi18n_init() under #ifdef because it requires avo_i18n_init()
- * from avo_util library. 
+ * from avo_util library.
  */
 	libmksdmsi18n_init();
 #ifdef USE_DMS_CCR
@@ -383,12 +388,12 @@ main(int argc, char *argv[])
 		retmem_mb(tmp_string);
 	}
 
-	/* 
-	 * The following flags are reset if we don't have the 
-	 * (.nse_depinfo or .make.state) files locked and only set 
+	/*
+	 * The following flags are reset if we don't have the
+	 * (.nse_depinfo or .make.state) files locked and only set
 	 * AFTER the file has been locked. This ensures that if the user
 	 * interrupts the program while file_lock() is waiting to lock
-	 * the file, the interrupt handler doesn't remove a lock 
+	 * the file, the interrupt handler doesn't remove a lock
 	 * that doesn't belong to us.
 	 */
 	make_state_lockfile = NULL;
@@ -396,17 +401,17 @@ main(int argc, char *argv[])
 
 #ifdef NSE
 	nse_depinfo_lockfile[0] = '\0';
-	nse_depinfo_locked = false; 
+	nse_depinfo_locked = false;
 #endif
 
 	/*
-	 * look for last slash char in the path to look at the binary 
+	 * look for last slash char in the path to look at the binary
 	 * name. This is to resolve the hard link and invoke make
 	 * in svr4 mode.
 	 */
 
 	/* Sun OS make standart */
-	svr4 = false;  
+	svr4 = false;
 	posix = false;
 	if(POSIX||!strcmp(argv_zero_string, NOCATGETS("/usr/xpg4/bin/make"))) {
 		svr4 = false;
@@ -662,7 +667,7 @@ main(int argc, char *argv[])
 //
 // If dmake is running with -t option, set dmake_mode_type to serial.
 // This is done because doname() calls touch_command() that runs serially.
-// If we do not do that, maketool will have problems. 
+// If we do not do that, maketool will have problems.
 //
 	if(touch) {
 		dmake_mode_type = serial_mode;
@@ -707,7 +712,7 @@ main(int argc, char *argv[])
 		startup_rxm();
 	}
 #endif
-		
+
 /*
  *	Enable interrupt handler for alarms
  */
@@ -779,7 +784,7 @@ main(int argc, char *argv[])
  			temp_file_directory = strdup(make_state_dir);
  		} else {
  			char	tmp_current_path2[MAXPATHLEN];
- 
+
  			sprintf(tmp_current_path2,
  			               "%s/%s",
  			               get_current_path(),
@@ -974,7 +979,7 @@ if(getname_stat) {
 	write_state_file(1, (Boolean) 1);
 
 #ifdef TEAMWARE_MAKE_CMN
-	// Deleting the usage tracking object sends the usage mail 
+	// Deleting the usage tracking object sends the usage mail
 #ifdef USE_DMS_CCR
 	//usageTracking->setExitStatus(exit_status, NULL);
 	//delete usageTracking;
@@ -1129,7 +1134,7 @@ handle_interrupt(int)
 
 /* BID_1030811 */
 /* azv 16 Oct 95 */
-		current_target->stat.time = file_no_time; 
+		current_target->stat.time = file_no_time;
 
 		tryremove(current_target);
 	}
@@ -1147,7 +1152,7 @@ handle_interrupt(int)
 		    !quest &&
 		    !(rp->target->stat.is_precious || all_precious)) {
 
-			rp->target->stat.time = file_no_time; 
+			rp->target->stat.time = file_no_time;
 			tryremove(rp->target);
 		}
 	}
@@ -1297,16 +1302,16 @@ read_command_options(register int argc, register char **argv)
 				      if (tptr) {
 				        if (last_optind_with_double_hyphen != current_optind) {
 				          /* This is first time we are trying to fix "--"
-				           * problem with this option. If we come here second 
+				           * problem with this option. If we come here second
 				           * time, we will go to fatal error.
 				           */
 				          last_optind_with_double_hyphen = current_optind;
-				          
+
 				          /* Eliminate first hyphen character */
 				          for (j=0; argv[i][j] != '\0'; j++) {
 				            argv[i][j] = argv[i][j+1];
 				          }
-				          
+
 				          /* Repeat the processing of this argument */
 				          optind=last_optind;
 				          current_optind=last_current_optind;
@@ -1573,7 +1578,7 @@ setup_makeflags_argv()
 			/* New MAKEFLAGS format */
 
 			add_hyphen = false;
-#ifdef ADDFIX5060758			
+#ifdef ADDFIX5060758
 			/* Check if MAKEFLAGS value begins with multiple
 			 * hyphen characters, and remove all duplicates.
 			 * Usually it happens when the next command is
@@ -2224,7 +2229,7 @@ read_files_and_state(int argc, char **argv)
 			MBSTOWCS(wcs_buffer, NOCATGETS("make.rules"));
 			default_makefile = GETNAME(wcs_buffer, FIND_LENGTH);
 		}
-#else		
+#else
 		MBSTOWCS(wcs_buffer, NOCATGETS("default.mk"));
 		default_makefile = GETNAME(wcs_buffer, FIND_LENGTH);
 #endif
@@ -2284,7 +2289,7 @@ read_files_and_state(int argc, char **argv)
 
 /*
  *	Set MFLAGS and MAKEFLAGS
- *	
+ *
  *	Before reading makefile we do not know exactly which mode
  *	(posix or not) is used. So prepare two MAKEFLAGS strings
  *	for both posix and solaris modes because they are different.
@@ -2332,7 +2337,7 @@ read_files_and_state(int argc, char **argv)
 		append_char('k', &makeflags_string);
 		append_char('k', &makeflags_string_posix);
 	} else {
-		if (stop_after_error_ever_seen 
+		if (stop_after_error_ever_seen
 		    && continue_after_error_ever_seen) {
 			append_char('k', &makeflags_string_posix);
 			append_char((int) space_char, &makeflags_string_posix);
@@ -2480,15 +2485,15 @@ read_files_and_state(int argc, char **argv)
 		}
 	}
 
-/* 
- *	Add command line macro to POSIX makeflags_string  
+/*
+ *	Add command line macro to POSIX makeflags_string
  */
 	if (makeflags_and_macro.start) {
 		tmp_char = (char) space_char;
 		cp = makeflags_and_macro.start;
 		do {
 			append_char(tmp_char, &makeflags_string_posix);
-		} while ( tmp_char = *cp++ ); 
+		} while ( tmp_char = *cp++ );
 		retmem_mb(makeflags_and_macro.start);
 	}
 
@@ -2778,7 +2783,7 @@ read_files_and_state(int argc, char **argv)
 			*/
 		      memcpy(&state_filename, make_state,sizeof(state_filename));
 		      state_filename.string_mb = state_file_str_mb;
-		/* Just a kludge to avoid two slashes back to back */			
+		/* Just a kludge to avoid two slashes back to back */
 		      if((make_state->hash.length == 1)&&
 			        (make_state->string_mb[0] == '/')) {
 			 make_state->hash.length = 0;
@@ -2795,7 +2800,7 @@ read_files_and_state(int argc, char **argv)
 		   char *slashp;
 
 		   if (slashp = strrchr(make_state->string_mb, '/')) {
-		      strncpy(tmp_path, make_state->string_mb, 
+		      strncpy(tmp_path, make_state->string_mb,
 				(slashp - make_state->string_mb));
 			tmp_path[slashp - make_state->string_mb]=0;
 		      if(strlen(tmp_path)) {
@@ -2837,7 +2842,7 @@ enter_argv_values(int argc, char *argv[], ASCII_Dyn_Array *makeflags_and_macro)
 	register int		i;
 	int			length;
 	register Name		name;
-	int			opt_separator = argc; 
+	int			opt_separator = argc;
 	char			tmp_char;
 	wchar_t			*tmp_wcs_buffer;
 	register Name		value;
@@ -2986,7 +2991,7 @@ enter_argv_values(int argc, char *argv[], ASCII_Dyn_Array *makeflags_and_macro)
 			}
 			argv[i+1] = NULL;
 		} else if ((cp = strchr(argv[i], (int) equal_char)) != NULL) {
-/* 
+/*
  * Combine all macro in dynamic array
  */
 			if(*(cp-1) == (int) plus_char)
@@ -3146,13 +3151,13 @@ read_environment(Boolean read_only)
 
 		/*
 		 * We ignore SUNPRO_DEPENDENCIES and NSE_DEP. Those
-		 * environment variables are set by make and read by 
-		 * cpp which then writes info to .make.dependency.xxx and 
-		 * .nse_depinfo. When make is invoked by another make 
-		 * (recursive make), we don't want to read this because 
-		 * then the child make will end up writing to the parent 
+		 * environment variables are set by make and read by
+		 * cpp which then writes info to .make.dependency.xxx and
+		 * .nse_depinfo. When make is invoked by another make
+		 * (recursive make), we don't want to read this because
+		 * then the child make will end up writing to the parent
 		 * directory's .make.state and .nse_depinfo and clobbering
-		 * them. 
+		 * them.
 		 */
 		MBSTOWCS(wcs_buffer2, NOCATGETS("SUNPRO_DEPENDENCIES"));
 		if (IS_WEQUALN(name, wcs_buffer2, wslen(wcs_buffer2))) {
@@ -3215,7 +3220,7 @@ static Boolean
 read_makefile(register Name makefile, Boolean complain, Boolean must_exist, Boolean report_file)
 {
 	Boolean			b;
-	
+
 	makefile_type = reading_makefile;
 	recursion_level = 0;
 #ifdef NSE
@@ -3340,7 +3345,7 @@ make_targets(int argc, char **argv, Boolean parallel_flag)
 		/* Now wait for all of the targets to finish running */
 		finish_running();
 		//		setjmp(jmpbuffer);
-		
+
 	}
 	for (i = 1; i < argc; i++) {
 		if ((cp = argv[i]) != NULL) {
@@ -3599,13 +3604,13 @@ LOOK_FOR_NAME:
 	while (isspace(*cp3)) {
 		cp3++;
 	}
-	
+
 	cp2 = cp1;  /* remove old macro */
 	if ((*cp3) && (cp3 < Ar->start + Ar->size)) {
 		for (; cp3 < Ar->start + Ar->size; cp3++) {
 			*cp2++ = *cp3;
 		}
-	} 
+	}
 	for (; cp2 < Ar->start + Ar->size; cp2++) {
 		*cp2 = 0;
 	}
@@ -3643,7 +3648,7 @@ APPEND_MACRO:
 	strncat(Ar->start, esc_value, strlen(esc_value));
 	free(esc_value);
 	return;
-ERROR_MACRO:	
+ERROR_MACRO:
 	/* Macro without '=' or with invalid left/right part */
 	return;
 }

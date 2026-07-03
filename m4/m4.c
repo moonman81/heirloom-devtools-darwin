@@ -40,6 +40,7 @@
 #include	<unistd.h>
 #include	<fcntl.h>
 #include	"m4.h"
+#include "heirloom_flags.h"
 
 #define	match(c, s)	(c == *s && (!s[1] || inpmatch(s+1)))
 
@@ -71,6 +72,7 @@ static int myfeof(int);
 int
 main(int argc, char **argv)
 {
+	heirloom_flags(argc, argv, "m4", HF_VERBOSE_TAKEN);
 	wchar_t t;
 	int i, opt_end = 0;
 	int sigs[] = {SIGHUP, SIGINT, SIGPIPE, 0};

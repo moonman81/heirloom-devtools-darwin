@@ -38,6 +38,7 @@
 /*	from OpenSolaris "sccs:cmd/vc.c"	*/
 # include	<defines.h>
 # include	<locale.h>
+#include "heirloom_flags.h"
 
 
 static int	SYMSIZE;
@@ -126,9 +127,10 @@ static void	*srealloc(void *, size_t);
  * the Delflag is equal to zero, it is written to the standard output.
  */
 
-int 
+int
 main(int argc, char *argv[])
 {
+	heirloom_flags(argc, argv, "vc", HF_VERBOSE_TAKEN);
 	register  char *lineptr, *p;
 	register int i;
 	char *line = NULL;
@@ -246,7 +248,7 @@ main(int argc, char *argv[])
  * equal sign and a value and calls putin to place it in the symbol table.
  */
 
-static void 
+static void
 asgfunc(register char *aptr)
 {
 	register char *end, *aname;
@@ -277,7 +279,7 @@ asgfunc(register char *aptr)
  * symbol table.  It returns when it sees a newline.
  */
 
-static void 
+static void
 dclfunc(register char *dptr)
 {
 	register char *end, *name;
@@ -291,7 +293,7 @@ dclfunc(register char *dptr)
 		dptr = findch(dptr,",",1);
 		*dptr++ = '\0';
 		if (Sym[i = lookup(name)].usage&DCL) {
-			sprintf(SccsError,"`%s' declared twice on line %d (vc5)", 
+			sprintf(SccsError,"`%s' declared twice on line %d (vc5)",
 				name, Lineno);
 			fatal(SccsError);
 		}
@@ -306,7 +308,7 @@ dclfunc(register char *dptr)
  * Errfunc calls fatal which stops the process.
  */
 
-static void 
+static void
 errfunc(char *eptr)
 {
 	if (!Silent)
@@ -322,7 +324,7 @@ errfunc(char *eptr)
  * Delflag is also decremented.
  */
 
-static void 
+static void
 endfunc(void)
 {
 	if (--Ifcount < 0) {
@@ -337,11 +339,11 @@ endfunc(void)
 
 
 /*
- * Msgfunc accepts a pointer to a line and prints that line on the 
+ * Msgfunc accepts a pointer to a line and prints that line on the
  * diagnostic output.
  */
 
-static void 
+static void
 msgfunc(char *mptr)
 {
 	if (!Silent)
@@ -349,7 +351,7 @@ msgfunc(char *mptr)
 }
 
 
-static void 
+static void
 repfunc(char *s)
 {
 	fprintf(stdout,"%s\n",replace(s));
@@ -373,7 +375,7 @@ repfunc(char *s)
  * rest of iffunc, door, and doand follow the BNF exactly.
  */
 
-static void 
+static void
 iffunc(char *iptr)
 {
 	register int value, not;
@@ -404,7 +406,7 @@ iffunc(char *iptr)
 	return;
 }
 
-static int 
+static int
 door(void)
 {
 	int value;
@@ -418,7 +420,7 @@ door(void)
 	return(value);
 }
 
-static int 
+static int
 doand(void)
 {
 	int value;
@@ -440,7 +442,7 @@ doand(void)
  * if the exp is true or false and returns the correct value.
  */
 
-static int 
+static int
 exp(void)
 {
 	register char op, save;
@@ -520,7 +522,7 @@ getid(register char *gptr)
  * second and 0 if the two are equal.
  */
 
-static int 
+static int
 numcomp(register char *id1, register char *id2)
 {
 	int k1, k2;
@@ -552,7 +554,7 @@ numcomp(register char *id1, register char *id2)
  * all digits.  If they're not it calls fatal, otherwise it returns.
  */
 
-static void 
+static void
 numck(register char *nptr)
 {
 	for (; *nptr != '\0'; nptr++)
@@ -630,7 +632,7 @@ replace(char *ptr)
  * otherwise it puts the keyword in the table.
  */
 
-static int 
+static int
 lookup(char *lname)
 {
 	register int i;
@@ -668,7 +670,7 @@ lookup(char *lname)
  * It returns the index of the name in the table.
  */
 
-static int 
+static int
 putin(char *pname, char *pvalue)
 {
 	register int i;
@@ -752,7 +754,7 @@ findstr(char *astr, char *pat)
 }
 
 /* for fatal() */
-void 
+void
 clean_up(void)
 {
 }

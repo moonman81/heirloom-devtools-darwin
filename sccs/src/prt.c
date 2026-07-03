@@ -59,6 +59,7 @@
 # include	<defines.h>
 # include	<had.h>
 # include	<i18n.h>
+#include "heirloom_flags.h"
 
 # define NOEOF	0
 # define BLANK(p)	while (!(*p == ' ' || *p == '\t')) p++;
@@ -119,9 +120,10 @@ static char	*lineread(register int);
 static void	printdel(register char *, register struct delent *);
 static void	printit(register char *, register char *, register char *);
 
-int 
+int
 main(int argc, char *argv[])
 {
+	heirloom_flags(argc, argv, "prt", HF_VERBOSE_TAKEN);
 	register int j;
 	register char *p;
 	int  c;
@@ -152,7 +154,7 @@ main(int argc, char *argv[])
 			if(current_optind < optind) {
 			   if (optind > j+1 ) {
 			      if((argv[j+1][0] != '-') &&
-				 ((argv[j][0] == 'c' && argv[j+1][0] <= '9') || 
+				 ((argv[j][0] == 'c' && argv[j+1][0] <= '9') ||
 				  (argv[j][0] == 'r' && argv[j+1][0] <= '9') ||
 				  (argv[j][0] == 'y' && argv[j+1][0] <= '9'))) {
 			        argv[j+1] = NULL;
@@ -160,7 +162,7 @@ main(int argc, char *argv[])
 				optind = j+1;
 				current_optind = optind;
 			      }
-			      
+
 			   }
 			   if(argv[j][0] == '-') {
 			     argv[j] = 0;
@@ -294,7 +296,7 @@ main(int argc, char *argv[])
 	Routine that actually performs the 'prt' functions.
 */
 
-static void 
+static void
 prt(char *file)
 {
 	int stopdel;
@@ -511,7 +513,7 @@ prt(char *file)
 }
 
 
-static void 
+static void
 getdel(register struct delent *delp, register char *lp)
 {
 	lp += 2;
@@ -588,7 +590,7 @@ lineread(register int eof)
 }
 
 
-static void 
+static void
 printdel(register char *file, register struct delent *delp)
 {
 	printf("\n");
@@ -604,7 +606,7 @@ printdel(register char *file, register struct delent *delp)
 
 
 /*ARGSUSED*/
-static void 
+static void
 printit(register char *file, register char *str, register char *cp)
 {
 	cp++;
@@ -619,7 +621,7 @@ printit(register char *file, register char *str, register char *cp)
 }
 
 /* for fatal() */
-void 
+void
 clean_up(void)
 {
 }

@@ -44,6 +44,7 @@
 # include	<setjmp.h>
 # include	<sys/utsname.h>
 # include	<sys/wait.h>
+#include "heirloom_flags.h"
 
 /*
 	Program to create new SCCS files and change parameters
@@ -72,18 +73,18 @@ and end of the string MUST be included in the translation.  Formatting
 characters, e.g. "%s" "%c" "%d" "\n" "\t" must appear in the
 translated string exactly as they do in the msgid string.  Spaces
 and/or tabs around these formats must be maintained.
- 
+
 The following are examples of text that should not be translated, but
 should appear exactly as they do in the msgid string:
- 
+
 - Any SCCS error code, which will be one or two letters followed by one
   or two numbers all in parenthesis, e.g. "(ad3)",
 
 - All descriptions of SCCS option flags, e.g. "-r" or " 'e'" , or "f",
   or "-fz"
- 
+
 - ".FRED", "sid", "SID", "MRs", "CMR", "p-file", "CASSI",  "cassi",
-  function names, e.g. "getcwd()", 
+  function names, e.g. "getcwd()",
 */
 
 # define MAXNAMES 9
@@ -139,9 +140,10 @@ extern int	org_uchash;
 
 extern char	*saveid;
 
-int 
+int
 main(int argc, char *argv[])
 {
+	heirloom_flags(argc, argv, "admin", HF_VERBOSE_TAKEN);
 	register int j;
 	register char *p;
 	char  f;
@@ -249,7 +251,7 @@ main(int argc, char *argv[])
 				if (optarg == argv[j+1]) {
 				   no_arg = 1;
 				   Comments = "";
-				} else {  
+				} else {
 				   Comments = p;
 				}
 				break;
@@ -467,7 +469,7 @@ main(int argc, char *argv[])
 		}
 	}
 
-	if (num_files == 0) 
+	if (num_files == 0)
 		fatal("missing file arg (cm3)");
 
 	if ((HADY || HADM) && ! (HADI || HADN))
@@ -512,7 +514,7 @@ main(int argc, char *argv[])
 static struct packet gpkt;	/* see file defines.h */
 static char	Zhold[MAXPATHLEN];	/* temporary z-file name */
 
-static void 
+static void
 admin(char *afile)
 {
 	struct deltab dt;	/* see file defines.h */
@@ -620,21 +622,21 @@ admin(char *afile)
 	if (fexists) { /* modifying */
 
 		sinit(&gpkt,afile,1);	/* init pkt & open s-file */
-	
+
 		/* Modify checksum if corrupted */
 
 	        if ((int) strlen(gpkt.p_line) > 8 && gpkt.p_line[0] == '\001'
-		         && gpkt.p_line[1] == '\150' ) 
+		         && gpkt.p_line[1] == '\150' )
 		{
 			gpkt.p_line[7] = '\012';
 		   	gpkt.p_line[8] = '\000';
-	
+
 		}
 
 	}
 
 
-	
+
 
 	else {
 		if ((int) strlen(sname(afile)) > MAXNAMLEN) {
@@ -1022,7 +1024,7 @@ admin(char *afile)
 				/* from standard input */
 				int    err = 0, cnt;
 				char   buf[BUFSIZ];
-				FILE * out;	
+				FILE * out;
 				mode_t cur_umask;
 
 				from_stdin = 1;
@@ -1127,7 +1129,7 @@ admin(char *afile)
 	/* If encoded file, put change "fe" flag and recalculate
 	   the hash value
 	 */
-	
+
 	if (Encoded)
 	{
 		strcpy(line,"0");
@@ -1183,15 +1185,15 @@ int	fflag)
 {
 	int	nline, index = 0, search_on = 0;
 	char	lastchar;
-	char	line[BUFSIZ];	
+	char	line[BUFSIZ];
 
 	/*
 	 * This gives the illusion that a zero-length file ends
-	 * in a newline so that it won't be mistaken for a 
+	 * in a newline so that it won't be mistaken for a
 	 * binary file.
 	 */
 	lastchar = '\n';
-	
+
 	nline = 0;
 	memset(line, '\377', BUFSIZ);
 	while (fgets(line, BUFSIZ, inptr) != NULL) {
@@ -1207,7 +1209,7 @@ int	fflag)
 		    if (fflag) {
 		       return(-1);
 		    } else {
-		       sprintf(SccsError, 
+		       sprintf(SccsError,
 			 "file '%s' contains illegal data on line %d (ad21)",
 			 file, nline);
 		       fatal(SccsError);
@@ -1222,7 +1224,7 @@ int	fflag)
 		    }
 		 }
 	      }
-	   }   
+	   }
 	   if (check_id) {
 	      chkid(line, flag_p['i'-'a']);
 	   }
@@ -1242,7 +1244,7 @@ int	fflag)
 	return(nline);
 }
 
-void 
+void
 clean_up(void)
 {
 	xrm();
@@ -1262,7 +1264,7 @@ clean_up(void)
 	}
 }
 
-static void 
+static void
 cmt_ba(register struct deltab *dt, char *str)
 {
 	register char *p;
@@ -1294,7 +1296,7 @@ cmt_ba(register struct deltab *dt, char *str)
 	*p = 0;
 }
 
-static void 
+static void
 putmrs(struct packet *pkt)
 {
 	register char **argv;
@@ -1357,7 +1359,7 @@ getval(register char *sourcep, register char *destp)
 	return(sourcep);
 }
 
-static int 
+static int
 val_list(register char *list)
 {
 	register int i;
@@ -1376,7 +1378,7 @@ val_list(register char *list)
 	return(1);
 }
 
-static int 
+static int
 pos_ser(char *s1, char *s2)
 {
 	register int offset;
@@ -1397,7 +1399,7 @@ pos_ser(char *s1, char *s2)
 	return(-1);
 }
 
-static int 
+static int
 range(register char *line)
 {
 	register char *p;

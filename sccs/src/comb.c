@@ -39,6 +39,7 @@
 # include	<defines.h>
 # include	<had.h>
 # include       <i18n.h>
+#include "heirloom_flags.h"
 
 struct stat Statbuf;
 char SccsError[MAXERRORLEN];
@@ -59,9 +60,10 @@ static void	comb(char *);
 static int	getpred(struct idel *, int *, int);
 static struct sid	*prtget(struct idel *, int, FILE *, char *);
 
-int 
+int
 main(int argc, register char *argv[])
 {
+	heirloom_flags(argc, argv, "comb", HF_VERBOSE_TAKEN);
 	register int i;
 	register char *p;
 	int  c;
@@ -165,7 +167,7 @@ main(int argc, register char *argv[])
 	return (Fcnt ? 1 : 0);
 }
 
-static void 
+static void
 comb(char *file)
 {
 	register int i, n;
@@ -244,7 +246,7 @@ comb(char *file)
 		Val_ptr = Blank;
 	fprintf(iop, "v=`prs -r%s -d:MR: %s`\n", rarg, gpkt.p_file);
 	fprintf(iop, "if test \"$v\"\n");
-	fprintf(iop, "then\n");	
+	fprintf(iop, "then\n");
 	fprintf(iop, "admin -iCOMB$$ -r%s -fv%s -m\"$v\" -y'This was COMBined' s.COMB$$\n", rarg,Val_ptr);
 	fprintf(iop, "else\n");
 	fprintf(iop, "admin -iCOMB$$ -r%s -y'This was COMBined' s.COMB$$\n", rarg);
@@ -265,7 +267,7 @@ comb(char *file)
 				n + 1, rdp[Cvec[i]].i_sid.s_rel);
 		prtget(rdp, Cvec[i], iop, gpkt.p_file);
 		fprintf(iop, "if test \"$b\"\n");
-		fprintf(iop, "then\n");	        
+		fprintf(iop, "then\n");
 		fprintf(iop, "delta -s -m\"$b\" -y\"$a\" s.COMB$$\n");
 		fprintf(iop, "admin -fv s.COMB$$\n");
 		fprintf(iop, "else\n");
@@ -332,7 +334,7 @@ comb(char *file)
 }
 
 /*ARGSUSED*/
-void 
+void
 enter(struct packet *pkt, int ch, int n, struct sid *sidp)
 {
 	Cvec[Cnt++] = n;
@@ -362,7 +364,7 @@ char *file)
 }
 
 
-static int 
+static int
 getpred(struct idel *idp, int *vec, int i)
 {
 	int ser, pred, acpred;
@@ -379,7 +381,7 @@ getpred(struct idel *idp, int *vec, int i)
 	return(i);
 }
 
-void 
+void
 clean_up(void)
 {
 	ffreeall();

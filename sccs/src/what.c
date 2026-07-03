@@ -38,6 +38,7 @@
 /*	from OpenSolaris "sccs:cmd/what.c"	*/
 # include	<defines.h>
 # include	<i18n.h>
+#include "heirloom_flags.h"
 
 #define MINUS '-'
 #define MINUS_S "-s"
@@ -54,9 +55,10 @@ static void	dowhat(FILE *);
 static int	trypat(FILE *,char *);
 
 
-int 
+int
 main(int argc, register char **argv)
 {
+	heirloom_flags(argc, argv, "what", HF_VERBOSE_TAKEN);
 	register int i;
 	register FILE *iop;
 	int current_optind, c;
@@ -160,7 +162,7 @@ trypat(register FILE *iop,register char *pat)
 }
 
 /* for fatal() */
-void 
+void
 clean_up(void)
 {
 }

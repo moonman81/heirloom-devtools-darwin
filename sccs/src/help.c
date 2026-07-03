@@ -39,6 +39,7 @@
 #include	<defines.h>
 #include	<i18n.h>
 #include	<ccstypes.h>
+#include "heirloom_flags.h"
 
 /*
 	Program to locate helpful info in an ascii file.
@@ -79,9 +80,10 @@ static char *ask(void);
 static int lochelp(char *, char *);
 
 
-int 
+int
 main(int argc, char *argv[])
 {
+	heirloom_flags(argc, argv, "src", 0);
 	register int i;
 	int numerrs=0;
 
@@ -96,7 +98,7 @@ main(int argc, char *argv[])
 }
 
 
-static int 
+static int
 findprt (
     char *p		/* "p" is user specified error code. */
 )
@@ -104,7 +106,7 @@ findprt (
 	register char *q;
 	char key[150];
 
-	if ((int) size(p) > 50) 
+	if ((int) size(p) > 50)
 		return(1);
 
 	q = p;
@@ -126,7 +128,7 @@ findprt (
 	else {				/* first char alpha, then numeric */
 		strcpy(key,p);		/* key used as temporary */
 		*(key + (q - p)) = '\0';
-		if(!lochelp(key,hfile)) 
+		if(!lochelp(key,hfile))
 		        sprintf(hfile,"%s/%s",HELPLOC,key);
 		else
 			cat(hfile,hfile,"/",key,0);
@@ -189,7 +191,7 @@ ask(void)
  * the file name of the found file (pointed to by the automatic
  * variable fi).
  */
-static int 
+static int
 lochelp (
     char *ky,
     char *fi /*ky is key  fi is found file name */
@@ -201,7 +203,7 @@ lochelp (
 	if(!(fp = fopen(HELPLOC,"r")))
 	{
 		/*no lochelp file*/
-		return(0); 
+		return(0);
 	}
 	while(fgets(locfile,sizeof(locfile)-1,fp)!=NULL)
 	{
@@ -219,7 +221,7 @@ lochelp (
 }
 
 /* for fatal() */
-void 
+void
 clean_up(void)
 {
 }

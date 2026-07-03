@@ -47,6 +47,7 @@
 # include	<had.h>
 # include	<i18n.h>
 # include	<ccstypes.h>
+#include "heirloom_flags.h"
 
 # define	FILARG_ERR	0200	/* no file name given */
 # define	UNKDUP_ERR	0100	/* unknown or duplicate keyletter */
@@ -105,9 +106,10 @@ static int	getstats(register struct packet *);
  * line.  See VAL(I) for more information.
 */
 
-int 
+int
 main(int argc, char *argv[])
 {
+	heirloom_flags(argc, argv, "val", HF_VERBOSE_TAKEN);
 	FILE	*iop;
 	register int j;
 	char *lp;
@@ -133,7 +135,7 @@ main(int argc, char *argv[])
 		      argc = 1;
 		      while ( *lp != '\0' ) {
 			 while ((*lp == ' ') || (*lp == '\t'))
-			    *lp++ = '\0'; 
+			    *lp++ = '\0';
 			 *argv++ = lp++;
 			 argc++;
 			 while ( (*lp != ' ')&&(*lp != '\t')&&(*lp != '\0') )
@@ -143,7 +145,7 @@ main(int argc, char *argv[])
 		     argv = Argv;
 		     process(line,argc,argv);
 		     ret_code |= inline_err;
-		   } 
+		   }
 		}
 	}
 	else {
@@ -168,7 +170,7 @@ main(int argc, char *argv[])
  * otherwise it returns any error code found by validate.
 */
 
-static void 
+static void
 process(char *p_line, int argc, char *argv[])
 {
 	register int	j;
@@ -183,7 +185,7 @@ process(char *p_line, int argc, char *argv[])
 	int 	c;
 
 	int current_optind;
-	
+
 	silent = FALSE;
 	path[0] = sid[0] = type[0] = name[0] = 0;
 	num_files = inline_err = 0;
@@ -325,7 +327,7 @@ process(char *p_line, int argc, char *argv[])
  * if any mismatch occurs.  See VAL(I) for more information.
 */
 
-static void 
+static void
 validate(char *c_path, char *c_sid, char *c_type, char *c_name)
 {
 	register char	*l;
@@ -429,7 +431,7 @@ validate(char *c_path, char *c_sid, char *c_type, char *c_name)
  * the information into the structure 'del'.
 */
 
-static void 
+static void
 getdel(register struct delent *delp, register char *lp)
 {
 	NONBLANK(lp);
@@ -462,7 +464,7 @@ getdel(register struct delent *delp, register char *lp)
  * the character sent over as an argument.
 */
 
-static void 
+static void
 read_to(int ch, register struct packet *pkt)
 {
 	register char *n;
@@ -478,7 +480,7 @@ read_to(int ch, register struct packet *pkt)
  * was found in the named file.
 */
 
-static void 
+static void
 report(register int code, register char *inp_line, register char *file)
 {
 	char	percent;
@@ -529,7 +531,7 @@ report(register int code, register char *inp_line, register char *file)
  * whether or not it is valid (e. g. not ambiguous or illegal).
 */
 
-static int 
+static int
 invalid(register char *i_sid)
 {
 	register int count;
@@ -624,7 +626,7 @@ get_line(register struct packet *pkt)
 	Does initialization for sccs files and packet.
 */
 
-static void 
+static void
 s_init(register struct packet *pkt, register char *file)
 {
 
@@ -634,7 +636,7 @@ s_init(register struct packet *pkt, register char *file)
 	pkt->do_chksum = 1;	/* turn on checksum check for getline */
 }
 
-static int 
+static int
 read_mod(register struct packet *pkt)
 {
 	register char *p;
@@ -673,7 +675,7 @@ read_mod(register struct packet *pkt)
 	return(0);
 }
 
-static void 
+static void
 add_q(struct packet *pkt, int ser, int keep, int iord, int user)
 {
 	register struct queue *cur, *prev, *q;
@@ -697,7 +699,7 @@ add_q(struct packet *pkt, int ser, int keep, int iord, int user)
 	set_keep(pkt);
 }
 
-static void 
+static void
 rem_q(register struct packet *pkt, int ser)
 {
 	register struct queue *cur, *prev;
@@ -717,7 +719,7 @@ rem_q(register struct packet *pkt, int ser)
 	}
 }
 
-static void 
+static void
 set_keep(register struct packet *pkt)
 {
 	register struct queue *q;
@@ -740,7 +742,7 @@ set_keep(register struct packet *pkt)
 
 # define apply(qp)	((qp->q_iord == INS && qp->q_keep == YES) || \
 			 (qp->q_iord == DEL && qp->q_keep == NO))
-static int 
+static int
 chk_ix(register struct queue *new, struct queue *head)
 {
 	register int retval;
@@ -783,7 +785,7 @@ chk_ix(register struct queue *new, struct queue *head)
  * if the sid requested is in the file (depending if '-r' was specified).
 */
 
-static int 
+static int
 do_delt(register struct packet *pkt, register int goods, register char *d_sid)
 {
 	char *l;
@@ -827,7 +829,7 @@ do_delt(register struct packet *pkt, register int goods, register char *d_sid)
 
 /* This function reads the stats line from the sccsfile */
 
-static int 
+static int
 getstats(register struct packet *pkt)
 {
 	register char *p = get_line(pkt);
@@ -837,7 +839,7 @@ getstats(register struct packet *pkt)
 }
 
 /* for fatal() */
-void 
+void
 clean_up(void)
 {
 }

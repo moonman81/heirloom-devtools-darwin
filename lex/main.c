@@ -44,6 +44,7 @@
 #include <locale.h>
 #include <limits.h>
 #include <unistd.h>
+#include "heirloom_flags.h"
 
 static wchar_t  L_INITIAL[] = {'I', 'N', 'I', 'T', 'I', 'A', 'L', 0};
 
@@ -59,6 +60,7 @@ static void free3core(void);
 int
 main(int argc, char **argv)
 {
+	heirloom_flags(argc, argv, "lex", HF_VERBOSE_TAKEN);
 	int i;
 	int c;
 	char *path = NULL;

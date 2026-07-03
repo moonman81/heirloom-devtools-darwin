@@ -41,6 +41,7 @@
 # include	<filehand.h>
 # include	<i18n.h>
 # include	<sys/utsname.h>
+#include "heirloom_flags.h"
 
 /*
 	Program to remove a specified delta from an SCCS file,
@@ -67,7 +68,7 @@
 	processed. Non SCCS files are ignored.
 	If the file is CASSI controlled special processing is performed:
 	if the cdc command is being executed then the cmrs for the delta are
-	list with the choice given about which to delete. This choice is checked 
+	list with the choice given about which to delete. This choice is checked
 	against the fred file for validity. If the rmdel command is being performed
 	then all cmrs for the delta are checked against fred, if there are any
 	non editable cmrs then the change is rejected.
@@ -112,6 +113,7 @@ void	clean_up(void);
 int
 main(int argc,char **argv)
 {
+	heirloom_flags(argc, argv, "rmchg", HF_VERBOSE_TAKEN);
 	register int i;
 	register char *p;
 	int  c, no_arg;
@@ -139,7 +141,7 @@ main(int argc,char **argv)
 			      } else {
 			         optind = i+1;
 			         current_optind = optind;
-			      }   	 
+			      }
 			   }
 			}
 			no_arg = 0;
@@ -182,7 +184,7 @@ main(int argc,char **argv)
 				   Comments = "";
 				   no_arg = 1;
 				}
-				else {  
+				else {
 				   Comments = p;
 				}
 				break;
@@ -265,7 +267,7 @@ static struct packet gpkt;	/* see file s.h */
 static char line[BUFSIZ];
 int Domrs;
 
-static void 
+static void
 rmchg(char *file)
 {
 	static int first_time = 1;
@@ -323,7 +325,7 @@ rmchg(char *file)
 	will read the table and change the delta entry of the
 	requested SID to be of type 'R' if this is
 	being executed as 'rmdel'; otherwise, for 'cdc', only
-	the MR and comments sections will be changed 
+	the MR and comments sections will be changed
 	(by 'escdodelt', called by 'dodelt').
 	*/
 	if (dodelt(&gpkt,&stats,&sid,D_type) == 0)
@@ -454,8 +456,8 @@ rmchg(char *file)
 	}
 
 	flushline(&gpkt,(struct stats *) 0);
-	
-	/* if z flag on and -fz exists on the sccs s.file 
+
+	/* if z flag on and -fz exists on the sccs s.file
 		verify the deleted cmrs and send message
 	*/
 	if((HADZ && !Sflags[CMFFLAG - 'a']) ||
@@ -489,7 +491,7 @@ rmchg(char *file)
 	clean_up();
 }
 
-void 
+void
 escdodelt(struct packet *pkt)
 {
 	static int first_time = 1;
@@ -511,7 +513,7 @@ escdodelt(struct packet *pkt)
 		 else
 			return;
 		}
-	/* non cassi processing begins*/	
+	/* non cassi processing begins*/
 	if (first_time) {
 		/*
 		 * if first time calling `escdodelt'
@@ -583,7 +585,7 @@ escdodelt(struct packet *pkt)
 				putline(pkt,line);
 				putline(pkt,"*** CHANGED *** ");
 				/* get date and time */
-				date_ba(&Timenow,line);	
+				date_ba(&Timenow,line);
 				putline(pkt,line);
 				sprintf(line," %s\n",logname());
 				putline(pkt,line);
@@ -594,19 +596,19 @@ escdodelt(struct packet *pkt)
 }
 
 
-/* esccmfdelt(pkt) takes a packet line of cassi cmrs 
+/* esccmfdelt(pkt) takes a packet line of cassi cmrs
 *  prompts for those which will be deleted from the delta
 *  checks the ones to be deleted against fred
 *  it turns the old line into a comment line
 *  and makes a new line containing the non deleted cmrs
 *  a chpost message is sent for the deleted cmrs
-*  whole function 
+*  whole function
 */
-	static int 
+	static int
 esccmfdelt(struct packet *pkt)
 		{
 		 char *p,*pp,*pend,holder[100],outhold[110],answ[80],*holdptr[25],str[80];
-		 int numcmrs,i,n,j,changed=0;		 
+		 int numcmrs,i,n,j,changed=0;
 		 /* move the cmr data to a holder*/
 		 p = pkt->p_line;
 		 p += 3;
@@ -673,7 +675,7 @@ esccmfdelt(struct packet *pkt)
 		}
 /*the fredchk routine verifies that the cmrs for the delta are all editableor
 *		 degenerate  before changing the delta*/
-void 
+void
 fredck(struct packet *pkt)
 {
 	char *mrhold[20],*p,holder[80];
@@ -693,7 +695,7 @@ fredck(struct packet *pkt)
 /*verif takes the list of deleted cmrs and checks them agains the fredfile
   if any are invalid the function returns 0
 */
-static int 
+static int
 verif(char *test[], struct packet *pkt)
 {
 	char *fred;
@@ -721,7 +723,7 @@ verif(char *test[], struct packet *pkt)
 }
 
 /*the  msg subroutine creates the command line to go to the mr subsystem*/
-static int 
+static int
 msg(char *app, char *name, char *cmrs, char *stats, char *sids, char *fred)
 
 	{
@@ -730,7 +732,7 @@ msg(char *app, char *name, char *cmrs, char *stats, char *sids, char *fred)
 	 struct stat stbuf;
 	 int noexist = 0;
 	 char *k;
-	
+
 	/*if -fm its value is made the file name */
 	if((k=Sflags[MODFLAG -'a']) != NULL)
 	{
@@ -768,14 +770,14 @@ msg(char *app, char *name, char *cmrs, char *stats, char *sids, char *fred)
 			fatal("Cassi BD/source not writeable\n");
 		}
 		chmod(holdfred,0666);
-		chown(holdfred,(int)stbuf.st_uid,(int)stbuf.st_gid); 
+		chown(holdfred,(int)stbuf.st_uid,(int)stbuf.st_gid);
 	}
 	return(1);
 }
-/* testfred takes the fredfile and the cmr and checks to see if the cmr is in 
+/* testfred takes the fredfile and the cmr and checks to see if the cmr is in
 *the fred  file
 */
-static int 
+static int
 testfred(char *cmr, char *fredfile)
 	{
 		char dcmr[50];
@@ -793,11 +795,11 @@ testfred(char *cmr, char *fredfile)
 		(int(*)(char **, char **, int))NULL)
 		== FOUND);
 	}
-	
+
 
 extern char **Varg;
 
-static void 
+static void
 split_mrs(void)
 {
 	register char **argv;
@@ -822,7 +824,7 @@ split_mrs(void)
 	Varg = NVarg;
 }
 
-static void 
+static void
 putmrs(struct packet *pkt)
 {
 	register char **argv;
@@ -834,7 +836,7 @@ putmrs(struct packet *pkt)
 	}
 }
 
-void 
+void
 clean_up(void)
 {
 	if(gpkt.p_iop)
@@ -852,7 +854,7 @@ clean_up(void)
 	}
 }
 
-static void 
+static void
 rdpfile(register struct packet *pkt, struct sid *sp)
 {
 	struct pfile pf;
@@ -874,7 +876,7 @@ rdpfile(register struct packet *pkt, struct sid *sp)
 	return;
 }
 
-static void 
+static void
 ckmrs(struct packet *pkt, char *p)
 {
 	register char **argv, **eargv;
@@ -894,7 +896,7 @@ ckmrs(struct packet *pkt, char *p)
 		}
 }
 
-static void 
+static void
 put_delmrs(struct packet *pkt)
 {
 

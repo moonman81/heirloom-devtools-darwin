@@ -43,6 +43,7 @@
 # include	<sys/utsname.h>
 # include	<sys/wait.h>
 # include	<ccstypes.h>
+#include "heirloom_flags.h"
 
 struct stat Statbuf;
 char Null[1];
@@ -99,9 +100,10 @@ extern int	org_chash;
 extern int	org_uchash;
 extern char *		saveid;
 
-int 
+int
 main(int argc, register char *argv[])
 {
+	heirloom_flags(argc, argv, "delta", HF_VERBOSE_TAKEN);
 	register int i;
 	register char *p;
 	int no_arg, c;
@@ -126,7 +128,7 @@ main(int argc, register char *argv[])
 			      } else {
 			         optind = i+1;
 			         current_optind = optind;
-			      }   	 
+			      }
 			   }
 			}
 			no_arg = 0;
@@ -165,7 +167,7 @@ main(int argc, register char *argv[])
 				if (optarg == argv[i+1]) {
 				   Comments = "";
 				   no_arg = 1;
-				} else {  
+				} else {
 				   Comments = p;
 				}
 				break;
@@ -210,7 +212,7 @@ main(int argc, register char *argv[])
 			/* The following is necessary in case the user types */
 			/* some localized character,  which will exceed the */
 			/* limit of the array "had", defined in ../hdr/had.h */
-			if ((c - 'a') < 0 || (c - 'a') > 25) 
+			if ((c - 'a') < 0 || (c - 'a') > 25)
 			       continue;
 			if (had[c - 'a']++)
 				fatal("key letter twice (cm2)");
@@ -239,7 +241,7 @@ main(int argc, register char *argv[])
 	return (Fcnt ? 1 : 0);
 }
 
-static void 
+static void
 delta(char *file)
 {
 	static int first = 1;
@@ -314,7 +316,7 @@ delta(char *file)
                 elist = 0;
                 ser = getser(&gpkt);
                 newsid(&gpkt, 0);
-        } else {        
+        } else {
                 gpkt.p_cutoff = pp->pf_date;
                 ilist = pp->pf_ilist;
                 elist = pp->pf_elist;
@@ -386,11 +388,11 @@ delta(char *file)
  	   fprintf(gpkt.p_stdout,"\n%s:\n",gpkt.p_file);
  	if (HADD != 0) {
  	   if (number_of_lines > 70000 && size_of_file > 3670000) {
- 	      fprintf(stderr, 
+ 	      fprintf(stderr,
  	         "Warning: the file is greater than 70000 lines and 3.5Mb\n");
  	   } else {
  	      if (size_of_file > 5872000) {
- 	         fprintf(stderr, 
+ 	         fprintf(stderr,
  	            "Warning: the file is greater than 5.6Mb\n");
  	      }
  	   }
@@ -428,10 +430,10 @@ delta(char *file)
 		getline(&gpkt);
 		gpkt.p_wrttn = 1;
         	if (HADF) {
-                	newser = mkdelt(&gpkt, &gpkt.p_reqsid, &gpkt.p_gotsid, 
+                	newser = mkdelt(&gpkt, &gpkt.p_reqsid, &gpkt.p_gotsid,
 				diffloop, orig);
        		 } else {
-                	newser = mkdelt(&gpkt,&pp->pf_nsid,&pp->pf_gsid, 
+                	newser = mkdelt(&gpkt,&pp->pf_nsid,&pp->pf_gsid,
 				diffloop, orig);
         	}
 		diffloop = 1;
@@ -508,7 +510,7 @@ command, to check the differences found between two files.
 			break;			/* exit while loop */
 		}
 	}
-	if (Sflags[ENCODEFLAG - 'a'] && 
+	if (Sflags[ENCODEFLAG - 'a'] &&
 	    (strcmp(Sflags[ENCODEFLAG - 'a'],"1") == 0)) {
 		unlink(auxf(gpkt.p_file,'e'));
 	}
@@ -530,7 +532,7 @@ command, to check the differences found between two files.
 			(unsigned int)sbuf.st_gid);
 	if (!HADF) {
 		char	*qfile;
-		
+
 		if (exists(qfile = auxf(gpkt.p_file, 'q'))) {
 			Szqfile = Statbuf.st_size;
 		}
@@ -554,7 +556,7 @@ command, to check the differences found between two files.
 	}
 }
 
-static int 
+static int
 mkdelt(struct packet *pkt, struct sid *sp, struct sid *osp, int diffloop, int orig_nlines)
 {
 	extern time_t Timenow;
@@ -682,7 +684,7 @@ mkdelt(struct packet *pkt, struct sid *sp, struct sid *osp, int diffloop, int or
 	return(newser);
 }
 
-static void 
+static void
 mkixg(struct packet *pkt, int reason, int ch)
 {
 	int n;
@@ -699,7 +701,7 @@ mkixg(struct packet *pkt, int reason, int ch)
 	putline(pkt,"\n");
 }
 
-static void 
+static void
 putmrs(struct packet *pkt)
 {
 	register char **argv;
@@ -719,9 +721,9 @@ putmrs(struct packet *pkt)
 *
 *	putcmrs takes the cmrs list on the Mrs line built by deltack
 * 	and puts them in the packet
-*	
+*
 */
-static void 
+static void
 putcmrs(struct packet *pkt)
 	{
 		char str[510];
@@ -875,7 +877,7 @@ dodiff(char *newf,char *oldf,int difflim)
 }
 
 
-static int 
+static int
 getdiff(register char *type, register int *plinenum)
 {
 	char line[BUFSIZ];
@@ -923,7 +925,7 @@ getdiff(register char *type, register int *plinenum)
 	return(num_lines);
 }
 
-static void 
+static void
 insert(struct packet *pkt, int linenum, int n, int ser)
 {
  	char	str[BUFSIZ];
@@ -954,7 +956,7 @@ insert(struct packet *pkt, int linenum, int n, int ser)
 	putline(pkt, str);
 }
 
-static void 
+static void
 delete(struct packet *pkt, int linenum, int n, int ser)
 {
 	char str[BUFSIZ];
@@ -967,7 +969,7 @@ delete(struct packet *pkt, int linenum, int n, int ser)
 	putline(pkt, str);
 }
 
-static void 
+static void
 after(struct packet *pkt, int n)
 {
 	before(pkt, n);
@@ -984,7 +986,7 @@ after(struct packet *pkt, int n)
 	}
 }
 
-static void 
+static void
 before(struct packet *pkt, int n)
 {
 	while (pkt->p_glnno < n) {
@@ -1006,7 +1008,7 @@ linerange(char *cp, int *low, int *high)
 	return(cp);
 }
 
-static void 
+static void
 skipline(char *lp, int num)
 {
  	for (++num; --num; ) {
@@ -1020,7 +1022,7 @@ static char *
 rddiff(char *s, int n)
 {
 	char	*r;
-	
+
 	strcpy(s, "");
 	if ((r = fgets(s, n, Diffin)) != NULL) {
 	   if (HADP) {
@@ -1031,7 +1033,7 @@ rddiff(char *s, int n)
 	return (r);
 }
 
-void 
+void
 enter(struct packet *pkt, int ch, int n, struct sid *sidp)
 {
 	char str[32];
@@ -1041,7 +1043,7 @@ enter(struct packet *pkt, int ch, int n, struct sid *sidp)
 	ap = &pkt->p_apply[n];
 	if (pkt->p_cutoff > pkt->p_idel[n].i_datetime)
 		switch(ap->a_code) {
-	
+
 		case SX_EMPTY:
 			switch (ch) {
 			case INCLUDE:
@@ -1079,7 +1081,7 @@ fredck(struct packet *pkt)	/*dummy routine for dodelt()*/
 {
 }
 
-void 
+void
 clean_up(void)
 {
 	uname(&un);
@@ -1105,7 +1107,7 @@ clean_up(void)
 }
 
 /*ARGSUSED*/
-static void 
+static void
 fgetchk(char *file, struct packet *pkt)
 {
 	FILE	*inptr;
@@ -1116,7 +1118,7 @@ fgetchk(char *file, struct packet *pkt)
 	inptr = xfopen(file, O_RDONLY);
 	/*
 	 * This gives the illusion that a zero-length file ends
-	 * in a newline so that it won't be mistaken for a 
+	 * in a newline so that it won't be mistaken for a
 	 * binary file.
 	 */
 	lastchar = '\n';
@@ -1133,7 +1135,7 @@ fgetchk(char *file, struct packet *pkt)
 		 if (line[index] == '\0') {
 	err:
 		    fclose(inptr);
-		    sprintf(SccsError, 
+		    sprintf(SccsError,
 		      "file '%s' contains illegal data on line %d (de14)",
 		      file, nline);
 		    fatal(SccsError);
@@ -1147,7 +1149,7 @@ fgetchk(char *file, struct packet *pkt)
 		    }
 		 }
 	      }
-	   }   
+	   }
 	   memset(line, '\377', BUFSIZ);
 	}
 	fclose(inptr);
@@ -1159,11 +1161,11 @@ fgetchk(char *file, struct packet *pkt)
 	}
 
 }
- 
+
 /* SVR4.0 does not support getdtablesize().				  */
 /* Code should be rewritten using getrlimit() when R_NFILES is available. */
 
-int 
+int
 getdtablesize(void)
 {
 	return (15);

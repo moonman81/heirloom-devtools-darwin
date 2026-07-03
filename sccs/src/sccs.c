@@ -38,6 +38,7 @@
 # include	<errno.h>
 # include	<libgen.h>
 # include	<signal.h>
+#include "heirloom_flags.h"
 #define EX_OK 0
 #define EX_USAGE 64
 #define EX_NOINPUT 66
@@ -286,7 +287,7 @@ static struct sccsprog SccsProg[] =
  	"sact",		PROG,	RFLAG,			PROGPATH(sact),
 	"val",		PROG,	0,			PROGPATH(val),
 	"what",		PROG,	NO_SDOT,		PROGPATH(what),
-#ifndef V6	
+#ifndef V6
 	"sccsdiff",	PROG,	REALUSER,		PROGPATH(sccsdiff),
 #else
 	"sccsdiff",	SHELL,	REALUSER,		PROGPATH(sccsdiff),
@@ -362,9 +363,10 @@ static char	*Pflag;		/* directory prefix */
 #define	FBUFSIZ	BUFSIZ
 #define	PFILELG	120
 
-int 
+int
 main(int argc, char **argv)
 {
+	heirloom_flags(argc, argv, "sccs", HF_VERBOSE_TAKEN);
 	register char *p;
 	register int i;
 	int current_optind, c;
@@ -417,14 +419,14 @@ main(int argc, char **argv)
 					   if ( access(buf, 0) < 0)
 					   {
 						SccsDir = NULL;
-					   }  
+					   }
 					}
 				}
 			}
 			if (SccsDir == NULL)
 			{
 				if(getcwd(cwdpath,FBUFSIZ - 1) == NULL)
-				{ 
+				{
 				  usrerr("cannot determine current directory!");
 				  exit(EX_USAGE);
 				} else { /* Try local directory */
@@ -543,7 +545,7 @@ static char * 		user_name;
 static char * 		r_option_value;
 static char ** 	ArrSids;
 static char ** 	ap_for_get;
-static char ** 	macro_files; 
+static char ** 	macro_files;
 
 /* getNsid() returns the latest checked out version of file.  */
 /* This function is used in 'deledit' macro (see 1083894 bug) */
@@ -614,7 +616,7 @@ getNsid(char *file, char *user)
 **		none.
 */
 
-static int 
+static int
 command(char **argv, int forkflag, char *arg0)
 {
 	register struct sccsprog *cmd;
@@ -636,7 +638,7 @@ command(char **argv, int forkflag, char *arg0)
 	bool	no_sdot;
 	struct	list_files	head_files;
 	struct	list_files	*listfilesp;
-	
+
 # ifdef DEBUG
 	if (Debug)
 	{
@@ -721,10 +723,10 @@ command(char **argv, int forkflag, char *arg0)
 		return (EX_USAGE);
 	}
 	if (cmd->sccsoper == CMACRO) {
-	
+
 	   char *cp, *cp_opstr;
-	
-	   cp_opstr = NULL;   
+
+	   cp_opstr = NULL;
 	   cp = cmd->sccspath;
 	   while (*cp != '\0') {
 	      while (*cp == ' ')
@@ -737,7 +739,7 @@ command(char **argv, int forkflag, char *arg0)
 		 if (cp_opstr == NULL) {
 		    macro_opstr_p = cp_opstr = &macro_opstr[0];
 		 }
-		 cp++; 
+		 cp++;
 		 while (*cp != '\0' && *cp != '/' && *cp != ' ')
 		    *cp_opstr++ = *cp++;
 	      } else {
@@ -763,8 +765,8 @@ command(char **argv, int forkflag, char *arg0)
 		      DIR  *dirf;
 		      struct dirent *dir;
 		      extern char *Ffile;
-		      
-	      	      ibuf = malloc(BUFSIZ);		   
+
+	      	      ibuf = malloc(BUFSIZ);
 		      if (ibuf == NULL) {
 			 perror("Sccs: no mem");
 			 exit(EX_OSERR);
@@ -785,13 +787,13 @@ command(char **argv, int forkflag, char *arg0)
 				usrerr("bad file name \"%s\"", ibuf);
 				exit(1);
 			 }
-			 if (exists(ibuf)&&(Statbuf.st_mode&S_IFMT)==S_IFDIR) {	
+			 if (exists(ibuf)&&(Statbuf.st_mode&S_IFMT)==S_IFDIR) {
 			    Ffile = ibuf;
 			    if((dirf = opendir(ibuf)) == NULL)
 			       break;
 			    dir = readdir(dirf);
 			    dir = readdir(dirf);
-			    while(dir = readdir(dirf)) { 
+			    while(dir = readdir(dirf)) {
 			       if(dir->d_ino == 0)
 				  continue;
 			       str = malloc(BUFSIZ);
@@ -807,7 +809,7 @@ command(char **argv, int forkflag, char *arg0)
 			 } else {
 		   	    get_list_files(&head_files, ibuf, no_sdot);
 			    cnt_files_from_stdin++;
-			    ibuf = malloc(BUFSIZ);		   
+			    ibuf = malloc(BUFSIZ);
 		            if (ibuf == NULL) {
 			       perror("Sccs: no mem");
 			       exit(EX_OSERR);
@@ -816,7 +818,7 @@ command(char **argv, int forkflag, char *arg0)
 		      }
 	           } else {
 	              char **pp = NULL;
-	              
+
 	              if (macro_opstr_p != 0) {
 	                 if (strchr(macro_opstr_p,p[1]) == NULL) {
 			    usrerr("%s %s", "unknown option", p);
@@ -868,7 +870,7 @@ command(char **argv, int forkflag, char *arg0)
  			       } else {
  			          *np++ = *++argv;
  			       }
- 			    }   
+ 			    }
  		            break;
 			 case 'e':
  			    if ((strcmp(cmd->sccsname,"get")         != 0) &&
@@ -885,7 +887,7 @@ command(char **argv, int forkflag, char *arg0)
  			       } else {
  			          *np++ = *++argv;
  			       }
- 			    }   
+ 			    }
  		            break;
 			 case 'f':
  			    if ((strcmp(maincmd->sccsname,"create") == 0) ||
@@ -899,7 +901,7 @@ command(char **argv, int forkflag, char *arg0)
  			       } else {
  			          *np++ = *++argv;
  			       }
- 			    }   
+ 			    }
  		            break;
 			 case 'i':
  			    if ((strcmp(cmd->sccsname,"admin") != 0) &&
@@ -910,7 +912,7 @@ command(char **argv, int forkflag, char *arg0)
  			       } else {
  			          *np++ = *++argv;
  			       }
- 			    }   
+ 			    }
  		            break;
 			 case 'g':
  			    if ((strcmp(cmd->sccsname,"get") != 0)) {
@@ -920,7 +922,7 @@ command(char **argv, int forkflag, char *arg0)
  			       } else {
  			          *np++ = *++argv;
  			       }
- 			    }   
+ 			    }
  		            break;
 			 case 'r':
 			    if (strcmp(cmd->sccsname,"prs") != 0) {
@@ -935,7 +937,7 @@ command(char **argv, int forkflag, char *arg0)
  			       } else {
  			          *np++ = *++argv;
  			       }
- 			    }   
+ 			    }
  		            break;
 			 case 'm':
  			    if ((strcmp(maincmd->sccsname,"deledit") == 0) ||
@@ -948,7 +950,7 @@ command(char **argv, int forkflag, char *arg0)
  			       } else {
  			          *np++ = *++argv;
  			       }
- 			    }   
+ 			    }
  		            break;
 			 case 'd':
  			    if ((strcmp(cmd->sccsname,"prs")    == 0) ||
@@ -961,8 +963,8 @@ command(char **argv, int forkflag, char *arg0)
  			       } else {
  			          *np++ = *++argv;
  			       }
- 			    }   
- 		            break;  		                        
+ 			    }
+ 		            break;
 			 case 'p':
  			    if ((strcmp(cmd->sccsname,"comb") == 0) &&
  			        (strcmp(cmd->sccsname,"sccsdiff") != 0) &&
@@ -974,7 +976,7 @@ command(char **argv, int forkflag, char *arg0)
  			       } else {
  			          *np++ = *++argv;
  			       }
- 			    }   
+ 			    }
  		            break;
 			 case 'y':
  			    if (strcmp(cmd->sccsname,"val") == 0) {
@@ -984,8 +986,8 @@ command(char **argv, int forkflag, char *arg0)
  			       } else {
  			          *np++ = *++argv;
  			       }
- 			    }   
-			    hady = 1;   
+ 			    }
+			    hady = 1;
  		            break;
 			 case 'G':
 			 case 'w':
@@ -996,7 +998,7 @@ command(char **argv, int forkflag, char *arg0)
  			       } else {
  			          *np++ = *++argv;
  			       }
- 			    }   
+ 			    }
  		            break;
 			 case 'C':
 			 case 'D':
@@ -1009,7 +1011,7 @@ command(char **argv, int forkflag, char *arg0)
  			       } else {
  			          *np++ = *++argv;
  			       }
- 			    } 
+ 			    }
  		            break;
 			 case 'U':
  			    if ((strcmp(cmd->sccsname,"sccsdiff") == 0) ||
@@ -1022,7 +1024,7 @@ command(char **argv, int forkflag, char *arg0)
  			       } else {
  			          *np++ = *++argv;
  			       }
- 			    } 
+ 			    }
  		            break;
 			 default:
 			    break;
@@ -1053,14 +1055,14 @@ command(char **argv, int forkflag, char *arg0)
 	               	 }
  		      }
  		      pp = NULL;
-		   }	
+		   }
 		} else {
 		   get_list_files(&head_files, p, no_sdot);
 		}
 	}
 	if (cnt_files_from_stdin) {
 		char ** new_nav;
-		
+
 		nav_size += cnt_files_from_stdin;
 		if ((new_nav = realloc(nav, nav_size * (sizeof(char *)))) == NULL) {
 			perror("Sccs: no mem");
@@ -1068,7 +1070,7 @@ command(char **argv, int forkflag, char *arg0)
 		}
 		np  = new_nav + (np - nav);
 		nav = new_nav;
-		ap  = &new_nav[1]; 
+		ap  = &new_nav[1];
 	}
 	if (Rflag == 1) {
 	  if (!hady) {
@@ -1131,7 +1133,7 @@ command(char **argv, int forkflag, char *arg0)
 	  		char Gname[FILESIZE];
 	  		char *  gf;
 	  		int     ind, ind1 = 0;
-	  		
+
 			for (ind = 0; ap[ind] != NULL; ind++) {
 				ind1 = ind;
 			}
@@ -1339,7 +1341,7 @@ command(char **argv, int forkflag, char *arg0)
 	  	int		n = 0, rflag = 0;
 	  	char		*sidp = NULL;
 	  	struct	sid	sid;
-	  	
+
 		/* find the end of the flag arguments */
 		for (np = &ap[1]; *np != NULL && **np == '-'; np++) {
 		   if (**np == '-') {
@@ -1352,7 +1354,7 @@ command(char **argv, int forkflag, char *arg0)
 			    sidp = *np + 2;
 			 }
 		      }
-		   } 
+		   }
 		}
 		if (*np == NULL) {
 		   usrerr(" missing file arg (cm3)");
@@ -1448,7 +1450,7 @@ command(char **argv, int forkflag, char *arg0)
 	  	{
 	  		int	nargs, err;
 			char 	**args, **cur_arg;
-	  	
+
 			/* find the end of the flag arguments */
 			for (np = &ap[1]; *np != NULL && **np == '-'; np++)
 			{
@@ -1468,8 +1470,8 @@ command(char **argv, int forkflag, char *arg0)
 								break;
 						}
 					}
-				} 
-			}     
+				}
+			}
 			if (*np == NULL) {
 				usrerr(" missing file arg (cm3)");
 				rval = EX_USAGE;
@@ -1530,9 +1532,9 @@ command(char **argv, int forkflag, char *arg0)
 		    * complain.
 		    */
 		   char *filep, *cp;
-		   
+
 		   filep = makefile(*np,SccsDir);
-		   gstrcpy(buf, filep, sizeof(buf));	   	   
+		   gstrcpy(buf, filep, sizeof(buf));
 		   cp = strrchr(buf, '/');
 		   if (cp != 0) {
 		      *cp = '\0';
@@ -1596,7 +1598,7 @@ command(char **argv, int forkflag, char *arg0)
 	return (rval);
 }
 
-static void 
+static void
 get_list_files(struct list_files *listfilesp, char *filename, int no_sdot)
 
 {
@@ -1629,7 +1631,7 @@ get_comments(void)
 		perror("Sccs: no mem");
  	     	exit(EX_OSERR);
 	}
-	strcpy(Comments, "-y"); 
+	strcpy(Comments, "-y");
 	strcat(Comments, cp);
 	if (cp != NULL)
 		free(cp);
@@ -1682,7 +1684,7 @@ lookup(char *name)
 **		Can exit if forkflag == FALSE.
 */
 
-static int 
+static int
 callprog(char *progpath, int flags, char **argv, int forkflag)
 {
 	register int i;
@@ -1782,9 +1784,9 @@ callprog(char *progpath, int flags, char **argv, int forkflag)
 		dup(OutFile);
 		close(OutFile);
 	}
-	
+
 	/* call real SCCS program */
-#ifndef V6	
+#ifndef V6
 	execvp(progpath, argv);
 #else
 	execv(progpath, argv);
@@ -1829,7 +1831,7 @@ makefile(char *name, const char *in_SccsDir)
 	int Spath = FALSE;
 	char *Sp, *np;
 	struct stat Statbuf;
-	
+
 	np = p = strrchr(name, '/');
 	if (p == NULL) {
 	   p = name;
@@ -1863,27 +1865,27 @@ makefile(char *name, const char *in_SccsDir)
 	*/
 
 	/* first the directory part */
-	if ((in_SccsDir[0] != '\0') && 
-	    (name[0] != '/') && 
+	if ((in_SccsDir[0] != '\0') &&
+	    (name[0] != '/') &&
 	    (strncmp(name, "./", 2) != 0)) {
 	   gstrcpy(buf, in_SccsDir, sizeof(buf));
 	   gstrcat(buf, "/", sizeof(buf));
 	} else {
 	   gstrcpy(buf, "", sizeof(buf));
 	}
-	
+
 	/* then the head of the pathname */
-	
+
 	gstrncat(buf, name, p - name, sizeof(buf));
 	q = &buf[strlen(buf)];
 
 	/* now copy the final part of the name, in case useful */
-	
+
 	gstrcpy(q, p, sizeof(buf));
 
 	/* so is it useful? */
-	
-	if (Spath == FALSE) { 
+
+	if (Spath == FALSE) {
 	  if (strncmp(p, "s.", 2) != 0) {
 	     if ((strcmp(curcmd->sccsname,"create") == 0) ||
 	         (strcmp(curcmd->sccsname,"enter" ) == 0) ||
@@ -1893,21 +1895,21 @@ makefile(char *name, const char *in_SccsDir)
 	        gstrcat(buf, "/s.", sizeof(buf));
 	        gstrcat(buf, p, sizeof(buf));
 	     }
-	  } 
+	  }
 	  else {
 	    if ((strcmp(curcmd->sccsname,"create") == 0) ||
 	         (strcmp(curcmd->sccsname,"enter" ) == 0) ||
  	         (strcmp(curcmd->sccsname,"admin" ) == 0)) {
 	        gstrcpy(q, SccsPath, sizeof(buf));
 	        gstrcat(buf, "/s.", sizeof(buf));
-	        gstrcat(buf, p, sizeof(buf)); 	        
+	        gstrcat(buf, p, sizeof(buf));
  	    }
- 	    else 
+ 	    else
 	      if (isdir(buf) == 0) {
 	        gstrcpy(q, SccsPath, sizeof(buf));
 	        gstrcat(buf, "/s.", sizeof(buf));
 	        gstrcat(buf, p, sizeof(buf));
-	        if (!exists(buf)) { 
+	        if (!exists(buf)) {
 	             gstrcpy(q, p, sizeof(buf));
 	        }
 	      }
@@ -1942,7 +1944,7 @@ makefile(char *name, const char *in_SccsDir)
 **		none.
 */
 
-static bool 
+static bool
 isdir(char *name)
 {
 	struct stat stbuf;
@@ -1963,7 +1965,7 @@ isdir(char *name)
 **		none.
 */
 
-static bool 
+static bool
 isfile(char *name)
 {
 	struct stat stbuf;
@@ -1989,7 +1991,7 @@ isfile(char *name)
 **		Prints a message if the path is not safe.
 */
 
-static bool 
+static bool
 safepath(register char *p)
 {
 	if (*p != '/')
@@ -2055,7 +2057,7 @@ The following message is a possible continuation of the text
 		printf(" by %s\n", usernm);
 }
 
-static int 
+static int
 clean(int mode, char **argv)
 {
 #ifdef __STDC__
@@ -2166,7 +2168,7 @@ clean(int mode, char **argv)
 			gstrcat(namefile, "/", sizeof(namefile));
 			gstrcat(namefile, dir->d_name, sizeof(namefile));
 		}
-		
+
 		/* got an s. file -- see if the p. file exists */
 		gstrcpy(bufend, NOGETTEXT("/p."), sizeof(buf) - (bufend - buf));
 		basefile = bufend + 3;
@@ -2212,7 +2214,7 @@ clean(int mode, char **argv)
 			}
 			fclose(pfp);
 		}
-		
+
 		/* the s. file exists and no p. file exists -- unlink the g-file */
 		if (mode == CLEANC && !gotpfent) {
 		   if (exists(basebuf) != 0) {
@@ -2221,7 +2223,7 @@ clean(int mode, char **argv)
 			 unlink(basebuf);
 		      } else {
 		  	 ex_status = 1;
-			 fprintf(stderr, 
+			 fprintf(stderr,
 			   "ERROR [%s]: the file `%s' is writable\n",
 			   namefile, Rflag ? basebuf : basefile);
 		      }
@@ -2256,7 +2258,7 @@ clean(int mode, char **argv)
 **		none.
 */
 
-static bool 
+static bool
 isbranch(char *sid)
 {
 	register char *p;
@@ -2292,7 +2294,7 @@ isbranch(char *sid)
 **		entries are removed from p_file.
 */
 
-static void 
+static void
 unedit(char *fn)
 {
 	register FILE *pfp;
@@ -2438,7 +2440,7 @@ unedit(char *fn)
 	else
 	{
 		/* it's empty -- remove it */
-		if (unlink(pfn) == -1) 
+		if (unlink(pfn) == -1)
 		{
 			syserr("cannot remove \"%s\"", pfn);
 			exit(EX_OSERR);
@@ -2529,7 +2531,7 @@ getpfent(FILE *pfp)
 	return (&ent);
 }
 
-static int 
+static int
 checkpfent(struct p_file *pf)
 {
 	if ( pf->p_osid == NULL ||
@@ -2541,7 +2543,7 @@ checkpfent(struct p_file *pf)
 	     return (0);
 	} else {
 	     return (1);
-	}	
+	}
 }
 
 static char *
@@ -2680,7 +2682,7 @@ gstrcpy(char *to, const char *from, unsigned length)
 	return(strcpy(to, from));
 }
 
-static void 
+static void
 gstrbotch(const char *str1, const char *str2)
 {
 	usrerr("Filename(s) too long: %s %s",
@@ -2688,7 +2690,7 @@ gstrbotch(const char *str1, const char *str2)
 	       str2);
 }
 
-static void 
+static void
 diffs(char *file)
 {
 	char	template[] = NOGETTEXT("/tmp/sccs.XXXXXX");
@@ -2698,7 +2700,7 @@ diffs(char *file)
 	char*	newSccsDir = NOGETTEXT("");
 	bool	sfile_exists = FALSE;
 	int	fd;
-	
+
 	if ((diffs_ap == NULL) && (diffs_np == NULL))
 		return;
 	if ((pfile = makefile(file,newSccsDir)) == NULL)
@@ -2722,7 +2724,7 @@ diffs(char *file)
 		p++;
 	}
 	*p = 'p';
-	
+
 	Fcnt  = 0;
 	printf("\n------- %s -------\n", tail(gfile));
 	fflush(stdout);
@@ -2748,7 +2750,7 @@ diffs(char *file)
 		/*
 		 * 1. We dont want to exec diff command in case when s-file exists and clear file doesnt.
 		 * 2. We want to exec diff command in case when p-file exists and clear file doesnt.
-		 */		
+		 */
 		if(
 			!( sfile_exists && !isfile(gfile) )
 			|| ( isfile(pfile) && !isfile(gfile) )
@@ -2767,7 +2769,7 @@ diffs(char *file)
 	unlink(tmp_file);
 }
 /*
-**  MAKEGFILE -- make filename of clear file 
+**  MAKEGFILE -- make filename of clear file
 **
 **	Parameters:
 **		name -- the file name to be munged.
@@ -2782,7 +2784,7 @@ static char *
 makegfile(char *name)
 {
 	register char *gname, *p, *g, *s;
-	
+
 	if (name == NULL || *name == '\0') {
 		return NULL;
 	}
@@ -2825,7 +2827,7 @@ makegfile(char *name)
 }
 
 /* for fatal() */
-void 
+void
 clean_up(void)
 {
 }

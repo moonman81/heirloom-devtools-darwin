@@ -43,6 +43,7 @@
 # include       <sys/wait.h>
 # include       <ctype.h>
 # include       <ccstypes.h>
+#include "heirloom_flags.h"
 
 /*
 		Program can be invoked as either "unget" or
@@ -71,9 +72,10 @@ char	SccsError[MAXERRORLEN];
 
 void	clean_up(void);
 
-int 
+int
 main(int argc, char *argv[])
 {
+	heirloom_flags(argc, argv, "unget", HF_VERBOSE_TAKEN);
 	int	c,i, testmore;
 	char	*p;
 	extern	int Fcnt;
@@ -103,7 +105,7 @@ main(int argc, char *argv[])
 			      } else {
 			         optind = i+1;
 			         current_optind = optind;
-			      }   	 
+			      }
 			   }
 			}
 			no_arg = 0;
@@ -136,7 +138,7 @@ main(int argc, char *argv[])
 				if ( (p[0]==0)||(isdigit(p[0])==0) ) {
 					no_arg = 1;
 					continue;
-				}				
+				}
 				chksid(sid_ab(p,&sid),&sid);
 				break;
 			case 'n':
@@ -198,7 +200,7 @@ main(int argc, char *argv[])
 	return (Fcnt ? 1 : 0);
 }
 
-static void 
+static void
 unget(char *file)
 {
 	char	gfilename[FILESIZE];
@@ -321,7 +323,7 @@ edpfile(struct packet *pkt, struct sid *sp)
 /* clean_up() only called from fatal().
 */
 
-void 
+void
 clean_up(void)
 {
 	/*	Lockfile and q-file only removed if lockfile
@@ -336,7 +338,7 @@ clean_up(void)
 	}
 }
 
-static void 
+static void
 catpfile(struct packet *pkt)
 {
 	int c;

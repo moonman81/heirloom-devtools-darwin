@@ -67,6 +67,7 @@
 # include	<had.h>
 # include	<i18n.h>
 # include	<sys/wait.h>
+#include "heirloom_flags.h"
 
 struct stat Statbuf;
 char Null[1];
@@ -133,9 +134,10 @@ static void idsetup(struct sid *,struct packet *,time_t *);
 
 void	clean_up(void);
 
-int 
+int
 main(int argc, char *argv[])
 {
+	heirloom_flags(argc, argv, "prs", HF_VERBOSE_TAKEN);
 	register int j;
 	register char *p;
 	int  c;
@@ -232,8 +234,8 @@ main(int argc, char *argv[])
 			case 'd':	/* dataspec line */
 				if (*p)
 				   strlength = strlen(p);
-				   if ( (p[strlength-2] == '\\') && 
-				        (p[strlength-1] == 'n') ) 
+				   if ( (p[strlength-2] == '\\') &&
+				        (p[strlength-1] == 'n') )
 				      p[strlength-2] = '\0';
 				   dataspec = p;
 				break;
@@ -254,7 +256,7 @@ main(int argc, char *argv[])
 			/* user types some localized character,  */
 			/* which will exceed the limits of the */
 			/* array "had", defined in ../../hdr/had.h . */
-			if ((c - 'a') < 0 || (c - 'a') > 25) 
+			if ((c - 'a') < 0 || (c - 'a') > 25)
 			       continue;
 			if (had[c - 'a']++)
 				fatal("key letter twice (cm2)");
@@ -273,10 +275,10 @@ main(int argc, char *argv[])
 		fatal("can't specify cutoff date and SID (prs5)");
 	if(HADC && (!HADL) && (!HADE))
 		fatal("must specify -e or -l with -c (prs6)");
-	/*	
+	/*
 	if(!HADD)
-		HADD = 1;	
-	*/	
+		HADD = 1;
+	*/
 
 	/*
 	check the dataspec line and determine if any tmp files
@@ -310,7 +312,7 @@ main(int argc, char *argv[])
  * returns to 'main' to process any other possible files.
 */
 
-static void 
+static void
 process(register char *file)
 {
 	if (setjmp(Fjmp))	/* set up to return here from 'fatal' */
@@ -406,7 +408,7 @@ process(register char *file)
  * needed during the scanning of the 'dataspec' line
 */
 
-static void 
+static void
 dodeltbl(register struct packet *pkt)
 {
 	char	*n;
@@ -483,7 +485,7 @@ dodeltbl(register struct packet *pkt)
 		if (HAD_CM)
 			CMiop = maket(cmtmp);
 		/*
-		Read rest of delta entry. 
+		Read rest of delta entry.
 		*/
 		while ((n = getline(pkt)) != NULL)
 			if (pkt->p_line[0] != CTLCHAR)
@@ -543,7 +545,7 @@ dodeltbl(register struct packet *pkt)
 extern	char	*Sflags[];
 static	char	Zkywd[5]   =   "@(#)";
 
-static void 
+static void
 scanspec(char spec[], struct deltab *dtp, struct stats *statp)
 {
 
@@ -871,7 +873,7 @@ scanspec(char spec[], struct deltab *dtp, struct stats *statp)
  * 'process' that are used for data keyword substitution
 */
 
-void 
+void
 clean_up(void)
 {
 	if (gpkt.p_iop)		/* if SCCS file is open, close it */
@@ -890,7 +892,7 @@ clean_up(void)
  * whether or not it is valid (e. g. not ambiguous or illegal).
 */
 
-static int 
+static int
 invalid(register char *i_sid)
 {
 	register int digits = 0;
@@ -921,7 +923,7 @@ invalid(register char *i_sid)
  * delta created (last in time).
 */
 
-static void 
+static void
 deltblchk(register struct packet *pkt)
 {
 	char	*n;
@@ -943,7 +945,7 @@ deltblchk(register struct packet *pkt)
 			fmterr(pkt);
 
 		/*
-		ignore if "removed" delta 
+		ignore if "removed" delta
 		*/
 		if (!HADA && dt.d_type != 'D') {
 			read_to(EDELTAB,pkt);
@@ -985,7 +987,7 @@ deltblchk(register struct packet *pkt)
 		}
 
 		/*
-		Read rest of delta entry. 
+		Read rest of delta entry.
 		*/
 		while ((n = getline(pkt)) != NULL)
 			if (pkt->p_line[0] != CTLCHAR)
@@ -1030,7 +1032,7 @@ deltblchk(register struct packet *pkt)
  * and places the statisitics into a structure called "stats".
 */
 
-static int 
+static int
 getstats(register struct packet *pkt, register struct stats *statp)
 {
 	register char *p = getline(pkt);
@@ -1048,7 +1050,7 @@ getstats(register struct packet *pkt, register struct stats *statp)
  * This routine compares to SIDs numerically.
 */
 
-static int 
+static int
 sidcmp(struct sid *sid1, struct sid *sid2)
 
 {
@@ -1069,7 +1071,7 @@ int diff = 0;
  * called "deltab".
 */
 
-static int 
+static int
 getadel(register struct packet *pkt, register struct deltab *dt)
 {
 	if (getline(pkt) == NULL)
@@ -1104,7 +1106,7 @@ maket(char *file)
  * temporary file that may have been created during "process".
 */
 
-static void 
+static void
 printfile(register char *file)
 {
 	register	char	*p;
@@ -1123,7 +1125,7 @@ printfile(register char *file)
  * the body of the SCCS file for data keyword substitution.
 */
 
-static int 
+static int
 read_mod(register struct packet *pkt)
 {
 	register char *p;
@@ -1167,7 +1169,7 @@ read_mod(register struct packet *pkt)
  * completion, control of the program is returned to 'prs'.
 */
 
-static void 
+static void
 getbody(struct sid *gsid, struct packet *pkt)
 {
 	int	i;
@@ -1208,7 +1210,7 @@ getbody(struct sid *gsid, struct packet *pkt)
  * lines.
 */
 
-static void 
+static void
 getit(register char *str, register char *cp)
 {
 	cp += 2;
@@ -1308,7 +1310,7 @@ idsetup(struct sid *gsid,struct packet *pkt,time_t *bdate)
  * into the temporary file created for that express purpose (/tmp/prXXXXXX).
 */
 
-static void 
+static void
 putmr(register char *cp)
 {
 
@@ -1330,7 +1332,7 @@ putmr(register char *cp)
  * section of the delta table entries.
 */
 
-static void 
+static void
 putcom(register char *cp)
 {
 
@@ -1348,7 +1350,7 @@ putcom(register char *cp)
  * of the line.
 */
 
-static void 
+static void
 read_to(int ch, register struct packet *pkt)
 {
 	register char *p;
@@ -1365,7 +1367,7 @@ read_to(int ch, register struct packet *pkt)
  * is not preceeded by a "tab".
 */
 
-static void 
+static void
 printflags(void)
 {
 	register	char	*k;
@@ -1424,7 +1426,7 @@ printflags(void)
  * if any temporary files need be created for future keyword replacement
 */
 
-static void 
+static void
 ck_spec(register char *p)
 {
 	if (sccs_index(p,NOGETTEXT(":C:")) != -1)	/* check for Comment keyword */
